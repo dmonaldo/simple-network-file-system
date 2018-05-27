@@ -9,7 +9,7 @@
 using namespace std;
 
 // report error
-void error(message) {
+void error(char* message) {
 	perror(message);
 	exit(0);
 }
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 		// create socket
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		if (sockfd < 0)
-			error("ERROR opening socket");
+			error((char*)"ERROR opening socket");
 
 		// bind socket to address and port number
 		bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -39,16 +39,16 @@ int main(int argc, char* argv[]) {
 		serv_addr.sin_addr.s_addr = INADDR_ANY;
 		serv_addr.sin_port = htons(port);
 		if (::bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-			error("ERROR on bind");
+			error((char*)"ERROR on bind");
 
 		// listen for client to make a connection
 		if (::listen(sockfd, BACKLOG) < 0)
-			error("ERROR on list");
+			error((char*)"ERROR on listen");
 
 		// accept a request from client
 		newsockfd = ::accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t*)&clilen);
 		if (newsockfd < 0)
-			error("ERROR on accept");
+			error((char*)"ERROR on accept");
 
 		bzero(buffer, 256);
 
