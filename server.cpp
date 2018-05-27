@@ -8,6 +8,12 @@
 #include "FileSys.h"
 using namespace std;
 
+// report error
+void error(message) {
+	perror(message);
+	exit(0);
+}
+
 int main(int argc, char* argv[]) {
 	const int BACKLOG = 5;
 	int sockfd, newsockfd, port, clilen;
@@ -18,39 +24,32 @@ int main(int argc, char* argv[]) {
 	if (argc < 2) {
 		cout << "Usage: ./nfsserver port#\n";
 			return -1;
-    }
+		}
 		port = atoi(argv[1]);
 		cout << "Connecting to port " << port << endl;
 
 		// create socket
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		if (sockfd < 0) {
-			perror("ERROR opening socket");
-			exit(0);
-		}
+		if (sockfd < 0)
+			error("ERROR opening socket");
 
 		// bind socket to address and port number
 		bzero((char *) &serv_addr, sizeof(serv_addr));
 		serv_addr.sin_family = AF_INET;
 		serv_addr.sin_addr.s_addr = INADDR_ANY;
 		serv_addr.sin_port = htons(port);
-		if (::bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-			perror("ERROR on bind");
-			exit(0);
-		}
+		if (::bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+			error("ERROR on bind");
 
 		// listen for client to make a connection
-		if (::listen(sockfd, BACKLOG) < 0){
-			perror("ERROR on list");
-			exit(0);
-		}
+		if (::listen(sockfd, BACKLOG) < 0)
+			error("ERROR on list");
 
 		// accept a request from client
 		newsockfd = ::accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t*)&clilen);
-		if (newsockfd < 0) {
-			perror("ERROR on accept");
-			exit(0);
-		}
+		if (newsockfd < 0)
+			error("ERROR on accept");
+
 		bzero(buffer, 256);
 
 		cout << "SOCK: " << sockfd << endl;
