@@ -26,6 +26,24 @@ void FileSys::unmount() {
 // make a directory
 void FileSys::mkdir(const char *name)
 {
+  dirblock_t directory;
+  directory.magic = DIR_MAGIC_MUM;
+  directory.num = entries = 0;
+  for(int i = 0; i < MAX_DIR_ENTRIES; i++){
+    directory_block.dir_entries[i].block_num = 0;
+  }
+  directory_block.dir_entries[0].name = name;
+  directory_block.dir_entries[0].block_num = bfs.get_free_block();
+  disk.write_block(directory, (void *) &directory);
+  
+  /*
+  inode_t = directory_inode;
+  directory_inode.magic = INODE_MAGIC_NUM; // magic number
+  //directory_inode.size = MAX_FILE_SIZE;  // file size in bytes
+  directory_inode.blocks[MAX_DATA_BLOCKS]; // array of direct indices to data
+  // blocks
+  contents = {name, directory_inode};
+  */
 }
 
 // switch to a directory
@@ -45,6 +63,9 @@ void FileSys::rmdir(const char *name)
 // list the contents of current directory
 void FileSys::ls()
 {
+  //home();
+  // list contents in this directory
+  dirblock_t currdir.dir_entries[MAX_DIR_ENTRIES];
 }
 
 // create an empty data file
