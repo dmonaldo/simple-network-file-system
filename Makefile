@@ -1,4 +1,4 @@
-CXX := g++ 
+CXX := g++
 CXXFLAGS := -g -O0 -std=c++11
 
 SRC	:= BasicFileSys.cpp Disk.cpp FileSys.cpp  server.cpp Shell.cpp

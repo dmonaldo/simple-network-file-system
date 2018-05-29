@@ -1,0 +1,4 @@
+*.o
+nfsclient
+nfsserver
+DISK
