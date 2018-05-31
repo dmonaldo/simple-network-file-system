@@ -80,20 +80,16 @@ void FileSys::mkdir(const char *name)
         for(int curr_sub_dir = 1; curr_sub_dir <= curr_dir_block_ptr->num_entries; curr_sub_dir++)
           {
             if(strcmp(curr_dir_block_ptr->dir_entries[curr_sub_dir].name, name) == 0)
-              {
-                dirblock_t target_dir = new dirblock_t;
-                bfs.read_block(curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num, target_dir);
-                // check dir_entries if block is inode or directory block
-                if(target_dir->magic == DIR_MAGIC_NUM)
+              {      // check dir_entries if block is inode or directory block
+                if(!is_directory(curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num))
                   {
                     curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
                     // communicate with client the new directory
                   }
-                else if(target_dir->magic == INODE_MAGIC_NUM)
+                else
                   {
                     //send ERROR 501 File is a directory to terminal
                   }
-                delete target_dir;
                 delete curr_dir_block_ptr;
                 return;
               }
@@ -134,6 +130,7 @@ void FileSys::mkdir(const char *name)
     //create dirblock_t to read block into
     dirblock_t target_dir = new dirblock_t;
     bfs.read_block(block_num, (void *) &target_dir);
+
     if(target_dir->magic == DIR_MAGIC_NUM)
     {
       delete target_dir;
