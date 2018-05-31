@@ -74,14 +74,14 @@ void FileSys::mkdir(const char *name)
     bfs.read_block(curr_dir, (void *) &curr_dir_block_ptr);
 
     //check if any sub directories exist in current directory
-    if(curr_dir_block_ptr.num_entries > 0)
+    if(curr_dir_block_ptr->num_entries > 0)
       {
         //check each sub directory and check directory names for match
-        for(int curr_sub_dir = 1; curr_sub_dir <= curr_dir_block_ptr.num_entries; curr_sub_dir++)
+        for(int curr_sub_dir = 1; curr_sub_dir <= curr_dir_block_ptr->num_entries; curr_sub_dir++)
           {
-            if(strcmp(curr_dir_block_ptr.dir_entries[i].name, name) == 0)
+            if(strcmp(curr_dir_block_ptr->dir_entries[i].name, name) == 0)
               {
-                curr_dir = curr_dir_block_ptr.dir_entries[i].block_num;
+                curr_dir = curr_dir_block_ptr->dir_entries[i].block_num;
                 delete curr_dir_block_ptr;
                 return;
               }
