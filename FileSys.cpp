@@ -129,6 +129,23 @@ void FileSys::mkdir(const char *name)
   {
   }
 
+  const bool FileSys::is_directory(short block_num)
+  {
+    //create dirblock_t to read block into
+    dirblock_t target_dir = new dirblock_t;
+    bfs.read_block(block_num, (void *) &target_dir);
+    if(target_dir->magic == DIR_MAGIC_NUM)
+    {
+      delete target_dir;
+      return true;}
+    }
+    else
+    {
+      delete target_dir;
+      return false;
+    }
+  }
+
   // display the contents of a data file
   void FileSys::cat(const char *name)
   {
@@ -143,9 +160,10 @@ void FileSys::mkdir(const char *name)
     bfs.read_block(curr_dir, curr_dir_block_ptr);
     for(int curr_dir_entry = 0; curr_dir_entry < MAX_DIR_ENTRIES; curr_dir_entry++)
       {
+        //target file found in current element in dir_entries
         if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0)
           {
-            if(curr_dir_block_ptr->mag)
+            if(curr_dir_block_ptr->magic == )
             cat_file_block_num = curr_dir_block_ptr->block_num;
             bfs.read_block(cat_file_block_num, (void *) &cat_file_contents);
             cout << cat_file_contents.data << " **end of block** ";
