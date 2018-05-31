@@ -79,15 +79,30 @@ void FileSys::mkdir(const char *name)
         //check each sub directory and check directory names for match
         for(int curr_sub_dir = 1; curr_sub_dir <= curr_dir_block_ptr->num_entries; curr_sub_dir++)
           {
-            if(strcmp(curr_dir_block_ptr->dir_entries[i].name, name) == 0)
+            if(strcmp(curr_dir_block_ptr->dir_entries[curr_sub_dir].name, name) == 0)
               {
-                curr_dir = curr_dir_block_ptr->dir_entries[i].block_num;
+                dirblock_t target_dir = new dirblock_t;
+                bfs.read_block(curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num, target_dir);
+                // check dir_entries if block is inode or directory block
+                if(target_dir->magic == DIR_MAGIC_NUM)
+                  {
+                    curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
+                    // communicate with client the new directory
+                  }
+                else if(target_dir->magic == INODE_MAGIC_NUM)
+                  {
+                    //send ERROR 501 File is a directory to terminal
+                  }
+                delete target_dir;
                 delete curr_dir_block_ptr;
                 return;
               }
           }
       }
-    cout << "cd: No matching directory found for " << name << "\n";
+      //if this point reached, lookup failed
+      //ERROR 503 File does not exist
+      delete curr_dir_block_ptr;
+      return;
   }
 
   // switch to home directory
@@ -126,11 +141,12 @@ void FileSys::mkdir(const char *name)
     datablock_t* cat_file_contents = new datablock_t;
     dirblock_t* curr_dir_block_ptr = new dirblock_t;
     bfs.read_block(curr_dir, curr_dir_block_ptr);
-    for(int curr_dir_entry = 0; curr_dir_entry < curr_dir_block_ptr.num_entries; curr_dir_entry++)
+    for(int curr_dir_entry = 0; curr_dir_entry < MAX_DIR_ENTRIES; curr_dir_entry++)
       {
-        if(strcmp(name,curr_dir_block_ptr.dir_entries[i].name)==0)
+        if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0)
           {
-            cat_file_block_num = curr_dir_block_ptr.block_num;
+            if(curr_dir_block_ptr->mag)
+            cat_file_block_num = curr_dir_block_ptr->block_num;
             bfs.read_block(cat_file_block_num, (void *) &cat_file_contents);
             cout << cat_file_contents.data << " **end of block** ";
           }
