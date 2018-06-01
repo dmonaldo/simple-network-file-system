@@ -15,16 +15,17 @@ void error(char* message) {
 }
 
 int main(int argc, char* argv[]) {
-	const int BACKLOG = 5;
-	int sockfd, newsockfd, port, clilen;
-	char buffer[256];
-	struct sockaddr_in serv_addr, cli_addr;
-	int n;
+		const int BACKLOG = 5;
+		int sockfd, newsockfd, port, clilen;
+		char buffer[256];
+		struct sockaddr_in serv_addr, cli_addr;
+		int n;
 
-	if (argc < 2) {
-		cout << "Usage: ./nfsserver port#\n";
+		if (argc < 2) {
+			cout << "Usage: ./nfsserver port#\n";
 			return -1;
 		}
+
 		port = atoi(argv[1]);
 		cout << "Connecting to port " << port << endl;
 
