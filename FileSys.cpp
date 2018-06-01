@@ -146,12 +146,15 @@ void FileSys::mkdir(const char *name)
   // display the contents of a data file
   void FileSys::cat(const char *name)
   {
+
     // check if name is too long
     if (strlen(name) > MAX_FNAME_SIZE + 1){
       cout << "File name is too long.\n";
       return;
     }
-    short cat_file_block_num = 0;
+    // may need to increase buffer size to account for terminal messages
+    char* buf[MAX_FILE_SIZE];
+
     datablock_t* cat_file_contents = new datablock_t;
     dirblock_t* curr_dir_block_ptr = new dirblock_t;
     bfs.read_block(curr_dir, curr_dir_block_ptr);
@@ -160,12 +163,33 @@ void FileSys::mkdir(const char *name)
         //target file found in current element in dir_entries
         if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0)
           {
-            if(curr_dir_block_ptr->magic == )
-            cat_file_block_num = curr_dir_block_ptr->block_num;
-            bfs.read_block(cat_file_block_num, (void *) &cat_file_contents);
-            cout << cat_file_contents.data << " **end of block** ";
+            if(!is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
+            {
+              inode_t cat_file_inode = new inode_t;
+              bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
+
+              //append each data block pointed to by inode_t.blocks[] to our buffer
+              for(int curr_data_block = 0; curr_data_block < sizeof(cat_file_inode.blocks); curr_data_block++)
+              {
+                bfs.read_block(cat_file_inode.blocks[curr_data_block], (void *) &cat_file_contents)
+                strcat(buf, cat_file_contents.data);
+              }
+              delete curr_dir_block_ptr;
+              delete cat_file_contents;
+              delete cat_file_inode;
+              // send buffer to socket here
+            }
+            else
+            {
+              //ERROR 501 File is a directory
+              delete curr_dir_block_ptr;
+              delete cat_file_contents;
+            }
           }
       }
+      // if point reached, file not found.
+      // ERROR 503 File does not exist
+
     delete cat_file_contents;
     delete curr_dir_block_ptr;
   }
