@@ -236,24 +236,21 @@ void FileSys::cat(const char *name)
 
   datablock_t* cat_file_contents = new datablock_t;
   dirblock_t* curr_dir_block_ptr = new dirblock_t;
-  bfs.read_block(curr_dir, (void*)&curr_dir_block_ptr);
-  for(int i = 0; i < MAX_DIR_ENTRIES; i++)
-    {
-      //target file found in current element in dir_entries
-      if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0)
-        {
-          if(!is_directory(curr_dir_block_ptr->dir_entries[i].block_num))
+  bfs.read_block(curr_dir, curr_dir_block_ptr);
+  for(int curr_dir_entry i = 0; curr_dir_entry < MAX_DIR_ENTRIES;
+      curr_dir_entry++){
+    //target file found in current element in dir_entries
+    if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0){
+      if(!is_directory(curr_dir_block_ptr->
+                       dir_entries[curr_dir_entry].block_num))
             {
-              inode_t* cat_file_inode = new inode_t;
-              bfs.read_block(curr_dir_block_ptr->dir_entries[i].block_num,
-                             (void*)&cat_file_inode);
+              inode_t cat_file_inode = new inode_t;
+              bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
 
               //append each data block pointed to by inode_t.blocks[] to our buffer
-              for(int curr_data_block = 0; curr_data_block <
-                    sizeof(cat_file_inode->blocks); curr_data_block++)
+              for(int curr_data_block = 0; curr_data_block < sizeof(cat_file_inode.blocks); curr_data_block++)
                 {
-                  bfs.read_block(cat_file_inode->blocks[curr_data_block],
-                                 (void *) &cat_file_contents);
+                  bfs.read_block(cat_file_inode.blocks[curr_data_block], (void *) &cat_file_contents)
                     strcat(buf, cat_file_contents.data);
                 }
               delete curr_dir_block_ptr;

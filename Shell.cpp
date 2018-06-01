@@ -26,9 +26,15 @@ void Shell::unmountNFS() {
 
 // Remote procedure call on mkdir
 void Shell::mkdir_rpc(string dname) {
+  string command = "mkdir " + dname + "\r\n";
+  char* message[200];
+  //  int socket = 9;  
+  //char buffer[];
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);            
   // to implement
-  send(fd, dname.c_str(), strlen(dname.c_str()), 0);
-  recv(fd, buf, MAX_FNAME_SIZE,0);
+  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
+  //recv(fd, buf, MAX_FNAME_SIZE,0);
   //read(); or cout the buf??
 }
 
@@ -45,16 +51,16 @@ void Shell::home_rpc() {
 // Remote procedure call on rmdir
 void Shell::rmdir_rpc(string dname) {
   // to implement
-  send(fd, dname.c_str(), strlen(dname.c_str()), 0);
-  recv(fd, buf, MAX_FNAME_SIZE, 0);
+  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
+  //recv(fd, buf, MAX_FNAME_SIZE, 0);
   //read() or cout the buf?;
 }
 
 // Remote procedure call on ls
 void Shell::ls_rpc() {
   // to implement
-  send(fd, dname.c_str(), strlen(dname.c_str9)), 0);
-  recv(fd, buf, (MAX_DIR_ENTRIES*MAX_FNAME_SIZE),0);
+  //send(fd, dname.c_str(), strlen(dname.c_str9)), 0);
+  //recv(fd, buf, (MAX_DIR_ENTRIES*MAX_FNAME_SIZE),0);
 //read(); or cout the buf??
 }
 
