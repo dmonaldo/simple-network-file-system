@@ -5,12 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-// #include <stdio.h>
-// #include <sys/types.h>
-// #include <sys/socket.h>
-// #include <netinet/in.h>
 #include <arpa/inet.h>
-// #include <netdb.h>
+#include <unistd.h>
 using namespace std;
 
 #include "Shell.h"
@@ -20,10 +16,6 @@ static const string PROMPT_STRING = "NFS> ";	// shell prompt
 // Mount the network file system with server name and port number in the format of server:port
 void Shell::mountNFS(string fs_loc) {
   struct sockaddr_in server;
-	//create the socket cs_sock and connect it to the server and port specified in fs_loc
-	//if all the above operations are completed successfully, set is_mounted to true
-
-  cout << "Mounting file system..." << endl;
 
   // parse filesystem location into array with servername and port
   vector<string> fs_address;
@@ -40,7 +32,7 @@ void Shell::mountNFS(string fs_loc) {
     perror("ERROR creating socket");
     exit(0);
   }
-  cout<<"Socket created\n";
+  cout << "Socket created\n";
 
   // convert servername to ip address
   // cout << gethostbyname(fs_address[0].c_str()) << endl;
@@ -58,14 +50,16 @@ void Shell::mountNFS(string fs_loc) {
     cout << "SUCCESS" << endl;
   }
 
-  cout<<"Connected\n";
+  cout << "Connected\n";
 
   is_mounted = true;
 }
 
 // Unmount the network file system if it was mounted
 void Shell::unmountNFS() {
-	// close the socket if it was mounted
+  if (is_mounted) {
+    close(cs_sock);
+  }
 }
 
 // Remote procedure call on mkdir

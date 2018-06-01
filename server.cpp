@@ -53,9 +53,6 @@ int main(int argc, char* argv[]) {
 
 		bzero(buffer, 256);
 
-		cout << "SOCK: " << sockfd << endl;
-		cout << "NEW SOCKET: " << newsockfd << endl;
-
 		// mount the file system
 		FileSys fs;
 		fs.mount(newsockfd);
