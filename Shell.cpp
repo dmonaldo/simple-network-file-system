@@ -10,10 +10,13 @@ using namespace std;
 
 static const string PROMPT_STRING = "NFS> ";	// shell prompt
 
-// Mount the network file system with server name and port number in the format of server:port
+// Mount the network file system with server name and port number in the
+//format of server:port
 void Shell::mountNFS(string fs_loc) {
-	//create the socket cs_sock and connect it to the server and port specified in fs_loc
-	//if all the above operations are completed successfully, set is_mounted to true  
+  //create the socket cs_sock and connect it to the server and port
+  //specified in fs_loc
+  //if all the above operations are completed successfully, set
+  //is_mounted to true  
 }
 
 // Unmount the network file system if it was mounted
@@ -24,6 +27,9 @@ void Shell::unmountNFS() {
 // Remote procedure call on mkdir
 void Shell::mkdir_rpc(string dname) {
   // to implement
+  send(fd, dname.c_str(), strlen(dname.c_str()), 0);
+  recv(fd, buf, MAX_FNAME_SIZE,0);
+  //read(); or cout the buf??
 }
 
 // Remote procedure call on cd
@@ -39,11 +45,17 @@ void Shell::home_rpc() {
 // Remote procedure call on rmdir
 void Shell::rmdir_rpc(string dname) {
   // to implement
+  send(fd, dname.c_str(), strlen(dname.c_str()), 0);
+  recv(fd, buf, MAX_FNAME_SIZE, 0);
+  //read() or cout the buf?;
 }
 
 // Remote procedure call on ls
 void Shell::ls_rpc() {
   // to implement
+  send(fd, dname.c_str(), strlen(dname.c_str9)), 0);
+  recv(fd, buf, (MAX_DIR_ENTRIES*MAX_FNAME_SIZE),0);
+//read(); or cout the buf??
 }
 
 // Remote procedure call on create
