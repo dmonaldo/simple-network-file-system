@@ -46,8 +46,6 @@ void Shell::mountNFS(string fs_loc) {
   if (connect(cs_sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
     perror("ERROR connection failed");
     exit(0);
-  } else {
-    cout << "SUCCESS" << endl;
   }
 
   cout << "Connected\n";
