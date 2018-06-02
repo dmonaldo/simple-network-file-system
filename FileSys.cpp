@@ -277,6 +277,7 @@ void FileSys::mkdir(const char *name)
                       bytes_to_write -= BLOCK_SIZE;
                     }
                   }
+                  delete cat_file_inode;
               }
           }
       }
@@ -286,7 +287,6 @@ void FileSys::mkdir(const char *name)
     {
       strcpy(buffer, "503: File does not exist\r\n");
     }
-    delete cat_file_inode;
     delete cat_file_contents;
     delete curr_dir_block_ptr;
     send(fs_sock, buffer, strlen(buffer), 0);
