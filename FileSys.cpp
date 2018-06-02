@@ -27,7 +27,9 @@ void FileSys::unmount() {
 // make a directory
 void FileSys::mkdir(const char *name)
 {
-  /*
+ /*
+   ignore all of this
+   
   dirblock_t directory;
   directory.magic = DIR_MAGIC_MUM;
   directory.num = entries = 0;
@@ -84,14 +86,14 @@ void FileSys::create(const char *name)
   strcpy(file_name, name);
   bfs.read_block(curr_dir, (void*) &curr_block_ptr);
 
-  if(cur_block_ptr->num_entries == MAX_DIR_ENTRIES){
+  if(curr_block_ptr->num_entries == MAX_DIR_ENTRIES){
     delete curr_block_ptr;
     //cout << "506 Directory is full." << endl;
     return;
   }
 
   for(unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
-    strcpy(cur_file_name, curr_block_ptr->dir_entries[i].name);
+    strcpy(curr_file_name, curr_block_ptr->dir_entries[i].name);
     if(strcmp(curr_file_name, file_name) == 0){
       delete curr_block_ptr;
       //cout << "502 File exists" << endl;
@@ -111,13 +113,13 @@ void FileSys::create(const char *name)
   }
   
   // fill new inode block_num to hold 0 to show blocks are unused
-  inode_t* curr_dir_inode = new curr_dir_inode;
+  inode_t* curr_dir_inode = new inode_t;
   // initalize timestamps?
   // set permissions/modes?
   curr_dir_inode->magic = INODE_MAGIC_NUM;
   curr_dir_inode->size = 0;
   for(int k = 0; k < MAX_DATA_BLOCKS; k++){
-    curr_dir_inode->block[k].block_num = 0; // everything unused
+    curr_dir_inode->blocks[k] = 0; // everything unused
   }
   // then write to the block
   bfs.write_block(block_num, (void*) &curr_dir_inode);
@@ -162,14 +164,18 @@ void FileSys::stat(const char *name)
   int first_block;
   bool check_first_block = false;
   dirblock_t* curr_block_ptr = new dirblock_t;
-  dir_check = is_directory(name);
-  if(dir_check){
+  
+  // call is_directory
+  
+  //dir_check = is_directory(name);
+  //if(dir_check){
+  
     //cout << "Directory name: " << curr_block_ptr->dir_entries
     //[curr_block_ptr->num_entries].name << endl;
     //cout << "Directory block: " << curr_block_ptr->dir_entries
     // [curr_block_ptr->num_entries].block_num << endl;                                                           
-  }
-  else{
+  //}
+  //else{
     //data file
     // determine number of blocks
     inode_t* new_inode = new inode_t;
@@ -188,11 +194,10 @@ void FileSys::stat(const char *name)
     cout << "Number of blocks: " << counter << endl;
     cout << "First block: " << first_block << endl;
    */
-  }
 }
 
 // HELPER FUNCTIONS (optional)
-
+/*
 bool FileSys::is_directory(const char *name)
 {
   if(dirblock_t name->magic == DIR_MAGIC_NUM){
@@ -202,3 +207,4 @@ bool FileSys::is_directory(const char *name)
     return false;
   }
 }
+*/
