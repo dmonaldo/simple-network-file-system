@@ -81,7 +81,7 @@ void Shell::cd_rpc(string dname) {
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
-  cout << buffer;
+  cout << message;
   }
 
 // Remote procedure call on home
@@ -117,7 +117,7 @@ void Shell::cat_rpc(string fname) {
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
-  cout << buffer;
+  cout << message;
 }
 
 // Remote procedure call on head
@@ -128,7 +128,7 @@ void Shell::head_rpc(string fname, int n) {
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
-  cout << buffer;
+  cout << message;
 }
 
 // Remote procedure call on rm
