@@ -52,13 +52,11 @@ class FileSys {
     BasicFileSys bfs;	// basic file system
     short curr_dir;	// current directory
 
-    //returns true if block_num is directory block
+    // HELPER FUNCTION - returns true if block_num is directory block
     const bool is_directory(short block_num);
 
     int fs_sock;  // file server socket
 
-    // Additional private variables and Helper functions - if desired
-    const bool is_directory(short block_num);
 };
 
 #endif
