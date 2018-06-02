@@ -109,13 +109,14 @@ void Shell::cat_rpc(string fname) {
   // to implement
   string command = "cat " + fname + "\r\n";
   char* message[2048];
+  char* buffer[2048];
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
   //Implement cout stuff
 
-  send(fd, fname.c_str(), strlen(fname.c_str()), 0);
-  recv(fd, buffer, 2048, 0);
+  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
+  recv(cs_sock, (void *) &buffer, 2048, 0);
   cout << buffer;
 }
 
