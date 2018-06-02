@@ -173,6 +173,7 @@ void FileSys::mkdir(const char *name)
                 delete cat_file_contents;
                 delete cat_file_inode;
                 // send buffer to socket here
+                send(fs_sock, buffer, strlen(buffer), 0);
               }
           }
       }
@@ -188,29 +189,83 @@ void FileSys::mkdir(const char *name)
   // display the first N bytes of the file
   void FileSys::head(const char *name, unsigned int n)
   {
-    // check if name is too long
-    if (strlen(name) > MAX_FNAME_SIZE + 1)
+    bool error = false;
+    char buffer [MAX_FILE_SIZE + 256];
+    read(fs_sock, buffer, MAX_FILE_SIZE + 256);
+
+    datablock_t* cat_file_contents = new datablock_t;
+    dirblock_t* curr_dir_block_ptr = new dirblock_t;
+
+    // read contents of current directory's directory node into curr_dir_block_ptr
+    bfs.read_block(curr_dir, curr_dir_block_ptr);
+
+    // look through all elements of dir_entries held in current directory blocks
+    for(int curr_dir_entry = 0; curr_dir_entry < MAX_DIR_ENTRIES; curr_dir_entry++)
       {
-        cout << "File name is too long.\n";
-        return;
+        //target file found in current element in dir_entries
+        if(strcmp(name,curr_dir_block_ptr->dir_entries[curr_dir_entry].name)==0)
+          {
+            if(is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
+              {
+                strcpy(buffer, "501: File is a directory\r\n");
+                error = true;
+                delete curr_dir_block_ptr;
+                delete cat_file_contents;
+              }
+            else if(!is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
+              {
+                inode_t* cat_file_inode = new inode_t;
+                unsigned int bytes_to_write;
+                //read inode data for targeted file
+                bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
+
+                if(n > cat_file_inode.size)
+                {
+                  bytes_to_write == cat_file_inode.size;
+                }
+
+
+                string file_head_size_str = to_string(cat_file_inode->size);
+                int file_byte_count = (file_size_str.length() + 1);
+                char* file_size = new char[16];
+                strcpy(file_size, file_head_size_str.c_str());
+
+                strcat(buffer, "200 OK\r\n Length:");
+                strcat(buffer, file_size);
+                strcat(buffer, "\r\n");
+                strcat(buffer, "\r\n");
+                delete file_size;
+
+
+                //append each data block pointed to by inode_t.blocks[] to our buffer
+                for(int curr_data_block = 0; curr_data_block < sizeof(cat_file_inode->blocks); curr_data_block++)
+                  {
+                    bfs.read_block(cat_file_inode->blocks[curr_data_block], (void *) &cat_file_contents);
+                    if(bytes_to_write < BLOCK_SIZE)
+                    {
+                      strncat(buffer, cat_file_contents->data, bytes_to_write);
+                    }
+                    else
+                    {
+                      strcat(buffer, cat_file_contents->data);
+                      bytes_to_write -= BLOCK_SIZE;
+                    }
+                  }
+                delete curr_dir_block_ptr;
+                delete cat_file_contents;
+                delete cat_file_inode;
+                send(fs_sock, buffer, strlen(buffer), 0);
+                // send buffer to socket here
+              }
+          }
       }
-
-    // Search for matching filename
-
-    // Find associated inode for file (check for inode_t.magic == INODE_MAGIC_NUM)
-
-    // If file empty, send error message
-
-    // If file has data, check inode for file size in bytes (inode_t.size)
-
-    // If n > inode_t.size print every block in inode_t.blocks[]
-
-    // Else if 0 < n < inode_t.size, check if BLOCK_SIZE|bytes
-    // if n / BLOCK_SIZE is a whole number, print the first n/BLOCK_SIZE blocks
-    // in inode_t.blocks[]
-
-    // if n / BLOCK_SIZE not whole number, print byte by byte (1 byte = 1 char)
-
+    // if point reached, file not found.
+    // ERROR 503 File does not exist
+    strcpy(buffer, "503: File does not exist\r\n");
+    error = true;
+    delete cat_file_contents;
+    delete curr_dir_block_ptr;
+    send(fs_sock, buffer, strlen(buffer), 0);
   }
 
 
