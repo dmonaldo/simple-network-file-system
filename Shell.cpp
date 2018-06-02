@@ -35,7 +35,7 @@ void Shell::mountNFS(string fs_loc) {
   cout << "Socket created\n";
 
   // convert servername to ip address
-  // cout << gethostbyname(fs_address[0].c_str()) << endl;
+  // cout << getaddrinfo(fs_address[0].c_str(), fs_address[1].c_str(), NULL, NULL) << endl;
 
   // construct server address
   server.sin_addr.s_addr = inet_addr(fs_address[0].c_str());
