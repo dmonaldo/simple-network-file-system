@@ -17,10 +17,10 @@ void error(char* message) {
 
 int main(int argc, char* argv[]) {
 		const int BACKLOG = 5;
+		const int BUFFER_LENGTH = 1024;
 		int sockfd, newsockfd, port, clilen;
-		char buffer[256];
+		char buffer[BUFFER_LENGTH];
 		struct sockaddr_in serv_addr, cli_addr;
-		int n;
 
 		if (argc < 2) {
 			cout << "Usage: ./nfsserver port#\n";
@@ -52,22 +52,30 @@ int main(int argc, char* argv[]) {
 		if (newsockfd < 0)
 			error((char*)"ERROR on accept");
 
-		bzero(buffer, 256);
+		bzero(buffer, BUFFER_LENGTH);
 
 		// mount the file system
 		FileSys fs;
 		fs.mount(newsockfd);
-		//assume that sock is the new socket created
-		//for a TCP connection between the client and the server.
+		// assume that sock is the new socket created
+		// for a TCP connection between the client and the server.
 
-		//loop: get the command from the client and invoke the file
-		//system operation which returns the results or error messages back to the clinet
-		//until the client closes the TCP connection.
+		// loop: get the command from the client and invoke the file
+		// system operation which returns the results or error messages back to the client
+		// until the client closes the TCP connection.
+		int response = 1;
+		while (response != 0) {
+			response = read(newsockfd, buffer, BUFFER_LENGTH);
+			cout << "RESPONSE:" << endl;
+			cout << response << endl;
+			cout << buffer << endl;
+			bzero(buffer, BUFFER_LENGTH);
+		}
 
 		// close the listening socket
 		close(sockfd);
 
-		//unmout the file system
+		// unmount the file system
 		fs.unmount();
 
 		return 0;
