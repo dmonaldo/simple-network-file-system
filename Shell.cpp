@@ -76,6 +76,17 @@ void Shell::mkdir_rpc(string dname) {
 
 // Remote procedure call on cd
 void Shell::cd_rpc(string dname) {
+  string command = "cd " + dname + "\r\n";
+  char* message[256];
+  char* buffer[256];
+
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);
+  //Implement cout stuff
+
+  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
+  recv(cs_sock, (void *) &buffer, 256, 0);
+  cout << buffer;
   // to implement
 }
 
@@ -123,6 +134,17 @@ void Shell::cat_rpc(string fname) {
 // Remote procedure call on head
 void Shell::head_rpc(string fname, int n) {
   // to implement
+  string command = "head " + fname + n + "\r\n";
+  char* message[2048];
+  char* buffer[2048];
+
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);
+  //Implement cout stuff
+
+  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
+  recv(cs_sock, (void *) &buffer, 2048, 0);
+  cout << buffer;
 }
 
 // Remote procedure call on rm
