@@ -71,6 +71,7 @@ void FileSys::mkdir(const char *name)
   void FileSys::cd(const char *name)
   {
     bool error = false;
+    bool found = false;
     char buffer[256];
     read(fs_sock, buffer, 256);
 
@@ -86,6 +87,7 @@ void FileSys::mkdir(const char *name)
           {
             if(strcmp(curr_dir_block_ptr->dir_entries[curr_sub_dir].name, name) == 0)
               {
+                found = true;
                 if(!is_directory(curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num))
                 {
                     error = true;
@@ -95,15 +97,14 @@ void FileSys::mkdir(const char *name)
                 {
                   curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
                 }
-                delete curr_dir_block_ptr;
-                send(fs_sock, buffer, strlen(buffer), 0);
-                return;
               }
           }
       }
       // if this point reached, no matching directory found
-      error = true;
-      strcat(buffer, "503 File does not exist");
+      if(found && !error)
+      {
+        strcat(buffer, "503 File does not exist");
+      }
       delete curr_dir_block_ptr;
       send(fs_sock, buffer, strlen(buffer), 0);
   }
@@ -136,6 +137,7 @@ void FileSys::mkdir(const char *name)
   void FileSys::cat(const char *name)
   {
     bool error = false;
+    bool found = false;
 
     // may need to increase buffer size to account for terminal messages
     char buffer [MAX_FILE_SIZE + 256];
@@ -156,12 +158,14 @@ void FileSys::mkdir(const char *name)
         //target file found in current element in dir_entries
         if(strcmp(name,curr_dir_block_ptr->dir_entries[curr_dir_entry].name)==0)
           {
+            found = true;
             if(is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
               {
                 strcpy(buffer, "501: File is a directory\r\n");
                 error = true;
                 delete curr_dir_block_ptr;
                 delete cat_file_contents;
+                break;
               }
             else if(!is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
               {
@@ -190,14 +194,17 @@ void FileSys::mkdir(const char *name)
                 delete cat_file_contents;
                 delete cat_file_inode;
                 // send buffer to socket here
-                send(fs_sock, buffer, strlen(buffer), 0);
               }
           }
       }
-    // if point reached, file not found.
-    // ERROR 503 File does not exist
-    strcpy(buffer, "503: File does not exist\r\n");
-    error = true;
+
+      // if point reached, file not found.
+      // ERROR 503 File does not exist
+      if(!found && !error)
+      {
+        strcpy(buffer, "503: File does not exist\r\n");
+      }
+
     delete cat_file_contents;
     delete curr_dir_block_ptr;
     send(fs_sock, buffer, strlen(buffer), 0);
@@ -206,6 +213,7 @@ void FileSys::mkdir(const char *name)
   // display the first N bytes of the file
   void FileSys::head(const char *name, unsigned int n)
   {
+    bool found = false;
     bool error = false;
     char buffer [MAX_FILE_SIZE + 256];
     read(fs_sock, buffer, MAX_FILE_SIZE + 256);
@@ -222,6 +230,7 @@ void FileSys::mkdir(const char *name)
         //target file found in current element in dir_entries
         if(strcmp(name,curr_dir_block_ptr->dir_entries[curr_dir_entry].name)==0)
           {
+            found = true;
             if(is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
               {
                 strcpy(buffer, "501: File is a directory\r\n");
@@ -268,18 +277,16 @@ void FileSys::mkdir(const char *name)
                       bytes_to_write -= BLOCK_SIZE;
                     }
                   }
-                delete curr_dir_block_ptr;
-                delete cat_file_contents;
-                delete cat_file_inode;
-                send(fs_sock, buffer, strlen(buffer), 0);
-                // send buffer to socket here
               }
           }
       }
     // if point reached, file not found.
     // ERROR 503 File does not exist
-    strcpy(buffer, "503: File does not exist\r\n");
-    error = true;
+    if(!found && !error)
+    {
+      strcpy(buffer, "503: File does not exist\r\n");
+    }
+    delete cat_file_inode;
     delete cat_file_contents;
     delete curr_dir_block_ptr;
     send(fs_sock, buffer, strlen(buffer), 0);
