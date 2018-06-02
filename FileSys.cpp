@@ -70,6 +70,10 @@ void FileSys::mkdir(const char *name)
   // switch to a directory
   void FileSys::cd(const char *name)
   {
+    bool error = false;
+    char buffer[256];
+    read(fs_sock, buffer, 256);
+
     //retrieve current directory data block
     dirblock_t* curr_dir_block_ptr = new dirblock_t;
     bfs.read_block(curr_dir, (void *) &curr_dir_block_ptr);
@@ -82,13 +86,26 @@ void FileSys::mkdir(const char *name)
           {
             if(strcmp(curr_dir_block_ptr->dir_entries[curr_sub_dir].name, name) == 0)
               {
-                curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
+                if(!is_directory(curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num))
+                {
+                    error = true;
+                    strcat(buffer, "500 File is not a directory");
+                }
+                else
+                {
+                  curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
+                }
                 delete curr_dir_block_ptr;
+                send(fs_sock, buffer, strlen(buffer), 0);
                 return;
               }
           }
       }
-    cout << "cd: No matching directory found for " << name << "\n";
+      // if this point reached, no matching directory found
+      error = true;
+      strcat(buffer, "503 File does not exist");
+      delete curr_dir_block_ptr;
+      send(fs_sock, buffer, strlen(buffer), 0);
   }
 
   // switch to home directory
