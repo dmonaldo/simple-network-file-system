@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <unistd.h>
 #include "FileSys.h"
 using namespace std;
 
@@ -63,7 +64,8 @@ int main(int argc, char* argv[]) {
 		//system operation which returns the results or error messages back to the clinet
 		//until the client closes the TCP connection.
 
-		//close the listening socket
+		// close the listening socket
+		close(sockfd);
 
 		//unmout the file system
 		fs.unmount();
