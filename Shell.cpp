@@ -13,7 +13,7 @@ static const string PROMPT_STRING = "NFS> ";	// shell prompt
 // Mount the network file system with server name and port number in the format of server:port
 void Shell::mountNFS(string fs_loc) {
 	//create the socket cs_sock and connect it to the server and port specified in fs_loc
-	//if all the above operations are completed successfully, set is_mounted to true  
+	//if all the above operations are completed successfully, set is_mounted to true
 }
 
 // Unmount the network file system if it was mounted
@@ -23,7 +23,16 @@ void Shell::unmountNFS() {
 
 // Remote procedure call on mkdir
 void Shell::mkdir_rpc(string dname) {
+  string command = "mkdir " + dname + "\r\n";
+  char* message[200];
+  //  int socket = 9;
+  //char buffer[];
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);
   // to implement
+  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
+  //recv(fd, buf, MAX_FNAME_SIZE,0);
+  //read(); or cout the buf??
 }
 
 // Remote procedure call on cd
@@ -59,6 +68,16 @@ void Shell::append_rpc(string fname, string data) {
 // Remote procesure call on cat
 void Shell::cat_rpc(string fname) {
   // to implement
+  string command = "cat " + fname + "\r\n";
+  char* message[2048];
+
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);
+  //Implement cout stuff
+
+  send(fd, fname.c_str(), strlen(fname.c_str()), 0);
+  recv(fd, buffer, 2048, 0);
+  cout << buffer;  
 }
 
 // Remote procedure call on head
@@ -81,8 +100,8 @@ void Shell::run()
 {
   // make sure that the file system is mounted
   if (!is_mounted)
- 	return; 
-  
+ 	return;
+
   // continue until the user quits
   bool user_quit = false;
   while (!user_quit) {
@@ -218,7 +237,7 @@ Shell::Command Shell::parse_command(string command_str)
   if (num_tokens == 0) {
     return empty;
   }
-    
+
   // Check for invalid command lines
   if (command.name == "ls" ||
       command.name == "home" ||
@@ -254,10 +273,9 @@ Shell::Command Shell::parse_command(string command_str)
   }
   else {
     cerr << "Invalid command line: " << command.name;
-    cerr << " is not a command" << endl; 
+    cerr << " is not a command" << endl;
     return empty;
-  } 
+  }
 
   return command;
 }
-
