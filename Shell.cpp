@@ -84,7 +84,7 @@ void Shell::cd_rpc(string dname) {
   recv(cs_sock, message, sizeof(message), 0);
   //Implement cout stuff
 
-  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
+  send(cs_sock, dname.c_str(), strlen(dname.c_str()), 0);
   recv(cs_sock, (void *) &buffer, 256, 0);
   cout << buffer;
   // to implement
@@ -134,7 +134,7 @@ void Shell::cat_rpc(string fname) {
 // Remote procedure call on head
 void Shell::head_rpc(string fname, int n) {
   // to implement
-  string command = "head " + fname + n + "\r\n";
+  string command = "head " + fname + to_string(n) + "\r\n";
   char* message[2048];
   char* buffer[2048];
 
