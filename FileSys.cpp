@@ -236,14 +236,14 @@ void FileSys::mkdir(const char *name)
                 //read inode data for targeted file
                 bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
 
-                if(n > cat_file_inode.size)
+                if(n > cat_file_inode->size)
                 {
-                  bytes_to_write == cat_file_inode.size;
+                  bytes_to_write == cat_file_inode->size;
                 }
 
 
                 string file_head_size_str = to_string(cat_file_inode->size);
-                int file_byte_count = (file_size_str.length() + 1);
+                int file_byte_count = (file_head_size_str.length() + 1);
                 char* file_size = new char[16];
                 strcpy(file_size, file_head_size_str.c_str());
 
