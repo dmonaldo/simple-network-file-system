@@ -65,7 +65,7 @@ void FileSys::mkdir(const char *name)
       return;
     }
   }
-
+}
   // switch to a directory
   void FileSys::cd(const char *name)
   {
@@ -74,14 +74,14 @@ void FileSys::mkdir(const char *name)
     bfs.read_block(curr_dir, (void *) &curr_dir_block_ptr);
 
     //check if any sub directories exist in current directory
-    if(curr_dir_block_ptr.num_entries > 0)
+    if(curr_dir_block_ptr->num_entries > 0)
       {
         //check each sub directory and check directory names for match
-        for(int curr_sub_dir = 1; curr_sub_dir <= curr_dir_block_ptr.num_entries; curr_sub_dir++)
+        for(int curr_sub_dir = 1; curr_sub_dir <= curr_dir_block_ptr->num_entries; curr_sub_dir++)
           {
-            if(strcmp(curr_dir_block_ptr.dir_entries[i].name, name) == 0)
+            if(strcmp(curr_dir_block_ptr->dir_entries[curr_sub_dir].name, name) == 0)
               {
-                curr_dir = curr_dir_block_ptr.dir_entries[i].block_num;
+                curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
                 delete curr_dir_block_ptr;
                 return;
               }
@@ -136,7 +136,7 @@ void FileSys::mkdir(const char *name)
     for(int curr_dir_entry = 0; curr_dir_entry < MAX_DIR_ENTRIES; curr_dir_entry++)
       {
         //target file found in current element in dir_entries
-        if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0)
+        if(strcmp(name,curr_dir_block_ptr->dir_entries[curr_dir_entry].name)==0)
           {
             if(is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
               {
@@ -147,7 +147,7 @@ void FileSys::mkdir(const char *name)
               }
             else if(!is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
               {
-                inode_t cat_file_inode = new inode_t;
+                inode_t* cat_file_inode = new inode_t;
                 bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
                 strcat(buffer, "200 OK\r\n Length:");
                 strcat(buffer, cat_file_inode->size.str() + "\r\n");
@@ -215,3 +215,20 @@ void FileSys::mkdir(const char *name)
   }
 
   // HELPER FUNCTIONS (optional)
+const bool FileSys::is_directory(short block_num)
+{
+  //create dirblock_t to read block into
+  dirblock_t target_dir = new dirblock_t;
+  bfs.read_block(block_num, (void *) &target_dir);
+
+  if(target_dir->magic == DIR_MAGIC_NUM)
+    {
+      delete target_dir;
+      return true;}
+}
+ else
+   {
+     delete target_dir;
+     return false;
+   }
+}
