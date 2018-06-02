@@ -49,6 +49,7 @@ void Shell::ls_rpc() {
 // Remote procedure call on create
 void Shell::create_rpc(string fname) {
   // to implement
+  
 }
 
 // Remote procedure call on append
