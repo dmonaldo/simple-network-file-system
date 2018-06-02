@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
+#include <sys/socket.h>
 using namespace std;
 
 #include "FileSys.h"
@@ -149,15 +150,24 @@ void FileSys::mkdir(const char *name)
               {
                 inode_t* cat_file_inode = new inode_t;
                 bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
+
+
+                string file_size_str = to_string(cat_file_inode->size);
+                int file_byte_count = (file_size_str.length() + 1);
+                char* file_size = new char[file_byte_count];
+                strcpy(file_size, file_size_str.c_str());
+
                 strcat(buffer, "200 OK\r\n Length:");
-                strcat(buffer, cat_file_inode->size.str() + "\r\n");
+                strcat(buffer, file_size);
                 strcat(buffer, "\r\n");
+                strcat(buffer, "\r\n");
+                delete file_size;
 
                 //append each data block pointed to by inode_t.blocks[] to our buffer
-                for(int curr_data_block = 0; curr_data_block < sizeof(cat_file_inode.blocks); curr_data_block++)
+                for(int curr_data_block = 0; curr_data_block < sizeof(cat_file_inode->blocks); curr_data_block++)
                   {
-                    bfs.read_block(cat_file_inode.blocks[curr_data_block], (void *) &cat_file_contents)
-                      strcat(buffer, cat_file_contents.data);
+                    bfs.read_block(cat_file_inode->blocks[curr_data_block], (void *) &cat_file_contents);
+                    strcat(buffer, cat_file_contents->data);
                   }
                 delete curr_dir_block_ptr;
                 delete cat_file_contents;
@@ -215,20 +225,21 @@ void FileSys::mkdir(const char *name)
   }
 
   // HELPER FUNCTIONS (optional)
-const bool FileSys::is_directory(short block_num)
-{
-  //create dirblock_t to read block into
-  dirblock_t target_dir = new dirblock_t;
-  bfs.read_block(block_num, (void *) &target_dir);
+  const bool FileSys::is_directory(short block_num)
+  {
+    //create dirblock_t to read block into
+    dirblock_t* target_dir = new dirblock_t;
+    bfs.read_block(block_num, (void *) &target_dir);
 
-  if(target_dir->magic == DIR_MAGIC_NUM)
-    {
-      delete target_dir;
-      return true;}
-}
- else
-   {
-     delete target_dir;
-     return false;
-   }
-}
+    if(target_dir->magic == DIR_MAGIC_NUM)
+      {
+        delete target_dir;
+        return true;
+      }
+    else
+      {
+        delete target_dir;
+        return false;
+      }
+  }
+
