@@ -117,28 +117,64 @@ void FileSys::mkdir(const char *name)
   // display the contents of a data file
   void FileSys::cat(const char *name)
   {
+    bool error = false;
+
+    // may need to increase buffer size to account for terminal messages
+    char buffer [MAX_FILE_SIZE + 256];
+
+    read(fs_sock, buffer, MAX_FILE_SIZE + 256);
+
     // check if name is too long
     if (strlen(name) > MAX_FNAME_SIZE + 1){
       cout << "File name is too long.\n";
       return;
     }
-    short cat_file_block_num = 0;
+
     datablock_t* cat_file_contents = new datablock_t;
     dirblock_t* curr_dir_block_ptr = new dirblock_t;
     bfs.read_block(curr_dir, curr_dir_block_ptr);
-    for(int curr_dir_entry = 0; curr_dir_entry < curr_dir_block_ptr.num_entries; curr_dir_entry++)
+    for(int curr_dir_entry = 0; curr_dir_entry < MAX_DIR_ENTRIES; curr_dir_entry++)
       {
-        if(strcmp(name,curr_dir_block_ptr.dir_entries[i].name)==0)
+        //target file found in current element in dir_entries
+        if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0)
           {
-            cat_file_block_num = curr_dir_block_ptr.block_num;
-            bfs.read_block(cat_file_block_num, (void *) &cat_file_contents);
-            cout << cat_file_contents.data << " **end of block** ";
+            if(is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
+              {
+                strcpy(buffer, "501: File is a directory\r\n");
+                error = true;
+                delete curr_dir_block_ptr;
+                delete cat_file_contents;
+              }
+            else if(!is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
+              {
+                inode_t cat_file_inode = new inode_t;
+                bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
+                strcat(buffer, "200 OK\r\n Length:");
+                strcat(buffer, cat_file_inode->size.str() + "\r\n");
+                strcat(buffer, "\r\n");
+
+                //append each data block pointed to by inode_t.blocks[] to our buffer
+                for(int curr_data_block = 0; curr_data_block < sizeof(cat_file_inode.blocks); curr_data_block++)
+                  {
+                    bfs.read_block(cat_file_inode.blocks[curr_data_block], (void *) &cat_file_contents)
+                      strcat(buffer, cat_file_contents.data);
+                  }
+                delete curr_dir_block_ptr;
+                delete cat_file_contents;
+                delete cat_file_inode;
+                // send buffer to socket here
+              }
           }
       }
+    // if point reached, file not found.
+    // ERROR 503 File does not exist
+    strcpy(buffer, "503: File does not exist\r\n");
+    error = true;
     delete cat_file_contents;
     delete curr_dir_block_ptr;
+    send(fs_sock, buffer, strlen(buffer), 0);
   }
-
+  
   // display the first N bytes of the file
   void FileSys::head(const char *name, unsigned int n)
   {
