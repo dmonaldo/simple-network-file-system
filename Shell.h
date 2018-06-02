@@ -9,13 +9,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <cstring>
 
 // Shell
 class Shell {
 
   public:
     //constructor, do not change it!!
-    Shell() : cs_sock(-1), is_mounted(false) {   
+    Shell() : cs_sock(-1), is_mounted(false) {
     }
 
     // Mount a network file system located in host:port, set is_mounted = true if success
@@ -31,7 +32,7 @@ class Shell {
     void run_script(char *file_name);
 
   private:
-    
+
     int cs_sock; //socket to the network file system server
 
 
@@ -52,7 +53,7 @@ class Shell {
     // for invalid command lines.
     struct Command parse_command(string command_str);
 
-    // Remote procedure call on mkdir 
+    // Remote procedure call on mkdir
     void mkdir_rpc(string dname);
 
     // Remote procedure call on cd
@@ -72,7 +73,7 @@ class Shell {
 
     // Remote procedure call on append
     void append_rpc(string fname, string data);
-   
+
     // Remote procesure call on cat
     void cat_rpc(string fname);
 
@@ -83,8 +84,7 @@ class Shell {
     void rm_rpc(string fname);
 
     // Remote procedure call on stat
-    void stat_rpc(string fname); 
+    void stat_rpc(string fname);
 };
 
 #endif
-  
