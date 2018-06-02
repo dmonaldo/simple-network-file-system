@@ -4,6 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <arpa/inet.h>
+#include <unistd.h>
 using namespace std;
 
 #include "Shell.h"
@@ -12,13 +15,49 @@ static const string PROMPT_STRING = "NFS> ";	// shell prompt
 
 // Mount the network file system with server name and port number in the format of server:port
 void Shell::mountNFS(string fs_loc) {
-	//create the socket cs_sock and connect it to the server and port specified in fs_loc
-	//if all the above operations are completed successfully, set is_mounted to true
+  struct sockaddr_in server;
+
+  // parse filesystem location into array with servername and port
+  vector<string> fs_address;
+  size_t pos = 0, found;
+  while((found = fs_loc.find_first_of(':', pos)) != string::npos) {
+    fs_address.push_back(fs_loc.substr(pos, found - pos));
+    pos = found+1;
+  }
+  fs_address.push_back(fs_loc.substr(pos));
+
+  // create the socket
+  cs_sock = socket(AF_INET, SOCK_STREAM, 0);
+  if (cs_sock < 0) {
+    perror("ERROR creating socket");
+    exit(0);
+  }
+  cout << "Socket created\n";
+
+  // convert servername to ip address
+  // cout << getaddrinfo(fs_address[0].c_str(), fs_address[1].c_str(), NULL, NULL) << endl;
+
+  // construct server address
+  server.sin_addr.s_addr = inet_addr(fs_address[0].c_str());
+  server.sin_family = AF_INET;
+  server.sin_port = htons(stoi(fs_address[1]));
+
+  // connect to remote server
+  if (connect(cs_sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
+    perror("ERROR connection failed");
+    exit(0);
+  }
+
+  cout << "Connected\n";
+
+  is_mounted = true;
 }
 
 // Unmount the network file system if it was mounted
 void Shell::unmountNFS() {
-	// close the socket if it was mounted
+  if (is_mounted) {
+    close(cs_sock);
+  }
 }
 
 // Remote procedure call on mkdir
@@ -77,7 +116,7 @@ void Shell::cat_rpc(string fname) {
 
   send(fd, fname.c_str(), strlen(fname.c_str()), 0);
   recv(fd, buffer, 2048, 0);
-  cout << buffer;  
+  cout << buffer;
 }
 
 // Remote procedure call on head
