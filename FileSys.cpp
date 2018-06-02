@@ -81,14 +81,30 @@ void FileSys::mkdir(const char *name)
         for(int curr_sub_dir = 1; curr_sub_dir <= curr_dir_block_ptr->num_entries; curr_sub_dir++)
           {
             if(strcmp(curr_dir_block_ptr->dir_entries[curr_sub_dir].name, name) == 0)
+<<<<<<< HEAD
               {
                 curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
+=======
+              {      // check dir_entries if block is inode or directory block
+                if(!is_directory(curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num))
+                  {
+                    curr_dir = curr_dir_block_ptr->dir_entries[curr_sub_dir].block_num;
+                    // communicate with client the new directory
+                  }
+                else
+                  {
+                    //send ERROR 501 File is a directory to terminal
+                  }
+>>>>>>> cf2662b5b6a8da7cc435210b5ed7251c2bf3ceb9
                 delete curr_dir_block_ptr;
                 return;
               }
           }
       }
-    cout << "cd: No matching directory found for " << name << "\n";
+      //if this point reached, lookup failed
+      //ERROR 503 File does not exist
+      delete curr_dir_block_ptr;
+      return;
   }
 
   // switch to home directory
@@ -115,21 +131,47 @@ void FileSys::mkdir(const char *name)
   {
   }
 
+  const bool FileSys::is_directory(short block_num)
+  {
+    //create dirblock_t to read block into
+    dirblock_t target_dir = new dirblock_t;
+    bfs.read_block(block_num, (void *) &target_dir);
+
+    if(target_dir->magic == DIR_MAGIC_NUM)
+    {
+      delete target_dir;
+      return true;}
+    }
+    else
+    {
+      delete target_dir;
+      return false;
+    }
+  }
+
   // display the contents of a data file
   void FileSys::cat(const char *name)
   {
+<<<<<<< HEAD
     bool error = false;
 
     // may need to increase buffer size to account for terminal messages
     char buffer [MAX_FILE_SIZE + 256];
 
     read(fs_sock, buffer, MAX_FILE_SIZE + 256);
+=======
+>>>>>>> cf2662b5b6a8da7cc435210b5ed7251c2bf3ceb9
 
     // check if name is too long
     if (strlen(name) > MAX_FNAME_SIZE + 1){
       cout << "File name is too long.\n";
       return;
     }
+<<<<<<< HEAD
+=======
+    // may need to increase buffer size to account for terminal messages
+    char* buf[MAX_FILE_SIZE];
+>>>>>>> cf2662b5b6a8da7cc435210b5ed7251c2bf3ceb9
 
     datablock_t* cat_file_contents = new datablock_t;
     dirblock_t* curr_dir_block_ptr = new dirblock_t;
@@ -137,6 +179,7 @@ void FileSys::mkdir(const char *name)
     for(int curr_dir_entry = 0; curr_dir_entry < MAX_DIR_ENTRIES; curr_dir_entry++)
       {
         //target file found in current element in dir_entries
+<<<<<<< HEAD
         if(strcmp(name,curr_dir_block_ptr->dir_entries[curr_dir_entry].name)==0)
           {
             if(is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
@@ -180,6 +223,37 @@ void FileSys::mkdir(const char *name)
     // ERROR 503 File does not exist
     strcpy(buffer, "503: File does not exist\r\n");
     error = true;
+=======
+        if(strcmp(name,curr_dir_block_ptr->dir_entries[i].name)==0)
+          {
+            if(!is_directory(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num))
+            {
+              inode_t cat_file_inode = new inode_t;
+              bfs.read_block(curr_dir_block_ptr->dir_entries[curr_dir_entry].block_num, cat_file_inode);
+
+              //append each data block pointed to by inode_t.blocks[] to our buffer
+              for(int curr_data_block = 0; curr_data_block < sizeof(cat_file_inode.blocks); curr_data_block++)
+              {
+                bfs.read_block(cat_file_inode.blocks[curr_data_block], (void *) &cat_file_contents)
+                strcat(buf, cat_file_contents.data);
+              }
+              delete curr_dir_block_ptr;
+              delete cat_file_contents;
+              delete cat_file_inode;
+              // send buffer to socket here
+            }
+            else
+            {
+              //ERROR 501 File is a directory
+              delete curr_dir_block_ptr;
+              delete cat_file_contents;
+            }
+          }
+      }
+      // if point reached, file not found.
+      // ERROR 503 File does not exist
+
+>>>>>>> cf2662b5b6a8da7cc435210b5ed7251c2bf3ceb9
     delete cat_file_contents;
     delete curr_dir_block_ptr;
     send(fs_sock, buffer, strlen(buffer), 0);
