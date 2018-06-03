@@ -57,6 +57,7 @@ void Shell::mountNFS(string fs_loc) {
 void Shell::unmountNFS() {
   if (is_mounted) {
     close(cs_sock);
+    is_mounted = false;
   }
 }
 
