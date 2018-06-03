@@ -9,8 +9,6 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-  create_rpc;
-
   if (argc < 2) {
 		cout << "Usage: ./nfsserver port#\n";
         return -1;

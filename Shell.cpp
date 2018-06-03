@@ -4,6 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
+#include <string.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
 using namespace std;
 
 #include "Shell.h"
@@ -32,8 +37,12 @@ void Shell::cd_rpc(string dname) {
 }
 
 // Remote procedure call on home
-void Shell::home_rpc() {
-  // to implement
+void Shell::home_rpc()
+{
+  string command = "home + \r\n";
+  char* message[200];
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);
 }
 
 // Remote procedure call on rmdir
@@ -47,9 +56,12 @@ void Shell::ls_rpc() {
 }
 
 // Remote procedure call on create
-void Shell::create_rpc(string fname) {
-  // to implement
-  
+void Shell::create_rpc(string fname)
+{
+  string command = "create " + fname + "\r\n";
+  char* message[200];
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);
 }
 
 // Remote procedure call on append
@@ -73,8 +85,12 @@ void Shell::rm_rpc(string fname) {
 }
 
 // Remote procedure call on stat
-void Shell::stat_rpc(string fname) {
-  // to implement
+void Shell::stat_rpc(string fname)
+{
+  string command = "stat " + fname + "\r\n";
+  char* message[200];
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, message, sizeof(message), 0);
 }
 
 // Executes the shell until the user quits.
