@@ -73,7 +73,6 @@ void FileSys::mkdir(const char *name)
     bool error = false;
     bool found = false;
     char buffer[256];
-    read(fs_sock, buffer, 256);
 
     //retrieve current directory data block
     dirblock_t* dir_ptr = new dirblock_t;
@@ -228,8 +227,6 @@ if(!error && !found)
     // may need to increase buffer size to account for terminal messages
     char buffer [MAX_FILE_SIZE + 256];
 
-    read(fs_sock, buffer, MAX_FILE_SIZE + 256);
-
     datablock_t* file_contents = new datablock_t;
     dirblock_t* dir_ptr = new dirblock_t;
     bfs.read_block(curr_dir, dir_ptr);
@@ -296,7 +293,6 @@ if(!error && !found)
     bool found = false;
     bool error = false;
     char buffer [MAX_FILE_SIZE + 256];
-    read(fs_sock, buffer, MAX_FILE_SIZE + 256);
 
     datablock_t* file_contents = new datablock_t;
     dirblock_t* dir_ptr = new dirblock_t;
