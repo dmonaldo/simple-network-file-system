@@ -7,7 +7,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "FileSys.h"
-
+#include <string.h>
 using namespace std;
 
 // report error
