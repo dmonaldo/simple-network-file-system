@@ -91,7 +91,7 @@ void FileSys::mkdir(const char *name)
                 if(!is_directory(dir_ptr->dir_entries[i].block_num))
                 {
                     error = true;
-                    strcat(buffer, "500 File is not a directory");
+                    strcat(buffer, "500 File is not a directory\n");
                 }
                 else
                 {
@@ -103,7 +103,7 @@ void FileSys::mkdir(const char *name)
       // if this point reached, no matching directory found
       if(found && !error)
       {
-        strcat(buffer, "503 File does not exist");
+        strcat(buffer, "503 File does not exist\n");
       }
       delete dir_ptr;
       send(fs_sock, buffer, strlen(buffer), 0);
@@ -131,6 +131,92 @@ void FileSys::mkdir(const char *name)
   // append data to a data file
   void FileSys::append(const char *name, const char *data)
   {
+    bool error = false;
+    bool found = false;
+
+    //buffer for data we append to given file
+    char append_data[MAX_FILE_SIZE];
+
+    //buffer for file contents of pre-append file
+    char target_file[MAX_FILE_SIZE];
+
+    char temp_block[BLOCK_SIZE];
+
+    //socket buffer
+    char buffer[256];
+
+    //bytes to append to given file
+    unsigned int bytes_left = strlen(data);
+
+    // read data from current directory node
+    dirblock_t curr_block_ptr = new dirblock_t;
+    bfs.read_block(curr_dir, (void *) &curr_block_ptr);
+
+
+    for(int i = 0; i < MAX_DIR_ENTRIES; i++)
+      {
+        if(strcmp(name, curr_block_ptr->dir_entries[i]) == 0)
+          {
+          found = true;
+          if(is_directory(curr_block_ptr->dir_entries[i])
+            {
+              error = true;
+              strcat(buffer, "501 File is a directory\n");
+            }
+          else if((curr_block_ptr->dir_entries[i].size + bytes_left) > MAX_FILE_SIZE)
+            {
+              error = true;
+              strcat(buffer, "508 Append exceeds maximum file size\n");
+            }
+          else
+            {
+              // check free bytes in last block of old files
+              // then load data to append into appropriate buffer
+              // followed by loading target file's final block into temp_block
+              // using loop. strcat the first n bytes (where n is unused bytes in final block)
+              //(Hold onto n as it will be the starting index of chars to append
+              // into each newly freed block of the char array append_data
+              // into temp_block and write this new block over original file's
+              // last block.
+
+              //.......
+              //.......
+              //.......
+              //.......
+
+
+
+              // Re-read your old file with the newly appended data in its last block
+              // and put all of that file's data into a char array buffer of size
+              // equal to the size of old file and append data combined
+              // now read the contents of append_data from chars n -> end of array
+              // into buffer with updated old file leaving one large char array
+              // buffer. From this massive buffer, grab new blocks one by one
+              // each time filling the next 128 chars in your buffer to each block.
+              // As you grab new blocks to fill, hold onto their short block_num
+              // and add it to the next free inode->block[] element after writing
+              // the new data to the new block.
+
+            }
+        }
+
+if(!error && !found)
+{
+  strcat(buffer, "503 File does not exist\n");
+}
+
+
+
+
+
+    }
+
+    //
+    //
+    //
+    //
+    //
+    //
   }
 
   // display the contents of a data file
@@ -143,12 +229,6 @@ void FileSys::mkdir(const char *name)
     char buffer [MAX_FILE_SIZE + 256];
 
     read(fs_sock, buffer, MAX_FILE_SIZE + 256);
-
-    // check if name is too long
-    if (strlen(name) > MAX_FNAME_SIZE + 1){
-      cout << "File name is too long.\n";
-      return;
-    }
 
     datablock_t* file_contents = new datablock_t;
     dirblock_t* dir_ptr = new dirblock_t;
