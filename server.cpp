@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include "FileSys.h"
 #include <string.h>
+#include <arpa/inet.h>
+
 using namespace std;
 
 // report error
@@ -22,7 +24,10 @@ int main(int argc, char* argv[]) {
   int sockfd, newsockfd, port, clilen;
   char buffer[BUFFER_LENGTH];
   struct sockaddr_in serv_addr, cli_addr;
-  
+  // char s[INET6_ADDRSTRLEN]; 
+  struct sockaddr_storage their_addr;
+  // connector's address information
+  socklen_t sin_size; 
   if (argc < 2) {
     cout << "Usage: ./nfsserver port#\n";
     return -1;
@@ -53,7 +58,7 @@ int main(int argc, char* argv[]) {
   if (newsockfd < 0)
     error((char*)"ERROR on accept");
   
-  bzero(buffer, BUFFER_LENGTH);
+  //bzero(buffer, BUFFER_LENGTH);
   
   // mount the file system
   FileSys fs;
@@ -62,28 +67,26 @@ int main(int argc, char* argv[]) {
   // for a TCP connection between the client and the server.
   
   // loop: get the command from the client and invoke the file
-  // system operation which returns the results or error messages back to the client
-  // until the client closes the TCP connection.
+  // system operation which returns the results or error messages back
+  //to the client until the client closes the TCP connection.
+  int n;
+  
+  while (1) {
+    cout << "in server while loop " << endl;
+    bzero(buffer,256);
 
-  int responseLength = 1;
-  string response;
-  while (responseLength != 0) {
-    responseLength = read(newsockfd, buffer, BUFFER_LENGTH);
-    cout << "RESPONSE LENGTH:" << responseLength << endl;
+    n = recv(newsockfd, buffer, sizeof(buffer), 0);
     
-    response = buffer;
-    fs.execute_command(response);
-    
-    int response = 1;
-    while (response != 0) {
-      response = read(newsockfd, buffer, BUFFER_LENGTH);
-      cout << "RESPONSE:" << endl;
-      cout << response << endl;
-      cout << buffer << endl;
-      
-      bzero(buffer, BUFFER_LENGTH);
+    fs.execute_command(buffer);
+    //send(sockfd, buffer, sizeof(buffer), 0);
+  
+    if(n < 0){
+      perror("ERROR recieveing to socket");
     }
-  } 
+  }
+  close(newsockfd);
+  
+  
     // close the listening socket
   close(sockfd);
   

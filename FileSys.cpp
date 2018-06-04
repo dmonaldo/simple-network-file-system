@@ -30,73 +30,87 @@ void FileSys::mkdir(const char *name)
 {
   char buffer[1024];
   bool error = false;
-  read(fs_sock, buffer, 1024);
-  if(strlen(name) > MAX_FNAME_SIZE +1){
-    strcpy(buffer, "504: File name is too long\r\n");
-    error = true;
-  }
 
-  // read current directory for duplicate name
-  dirblock_t* curr_block_ptr = new dirblock_t;
+  dirblock_t curr_block_ptr;// = new dirblock_t;
   char file_name[MAX_FNAME_SIZE + 1];
   char curr_file_name[MAX_FNAME_SIZE + 1];
   strcpy(file_name, name);
+  //strcat(file_name, '\0');
+  cout << "copies filename" << endl;
   bfs.read_block(curr_dir, (void*)&curr_block_ptr);
+  cout << "reads block " << endl;
+    cout << "passes directory full" << endl;
   if(!error){
-    if (curr_block_ptr->num_entries == MAX_DIR_ENTRIES){
-      strcpy(buffer, "506: Directory is full\r\n");
-      error = true;
-      delete curr_block_ptr;
-    }
-  }
-  
-  for (unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
-    strcpy(curr_file_name, curr_block_ptr->dir_entries[i].name);
-    
-    if (strcmp(curr_file_name, file_name) == 0){
-      if(!error){
+    for (unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
+      strcpy(curr_file_name, curr_block_ptr.dir_entries[i].name);
+      if (strcmp(curr_file_name, file_name) == 0){
+        //if(!error){
         strcpy(buffer, "502: File exists\r\n");
         error = true;
-        delete curr_block_ptr;
+        //delete curr_block_ptr;
+        //   }
       }
     }
   }
-
+  if(!error){
+    if(strlen(name) > MAX_FNAME_SIZE +1){
+      strcpy(buffer, "504: File name is too long\r\n");
+      error = true;
+    }
+  }
+  
+  //  if(!error){
   // make new free block
   short block_num = bfs.get_free_block();
   if (block_num == 0){
     block_num = bfs.get_free_block();
+    cout << "block_num: " << block_num << endl;
     if (block_num == 0){
       if(!error){
         strcpy(buffer, "505: Disk is full\r\n");
         error = true;
-        delete curr_block_ptr;
+        //delete curr_block_ptr;
       }
     }
   }
-
+    //}
+  if(!error){
+    if (curr_block_ptr.num_entries == MAX_DIR_ENTRIES){
+      strcpy(buffer, "506: Directory is full\r\n");
+      error = true;
+      //delete curr_block_ptr;
+    }
+  }
+  cout << "passes directory full" << endl;
+  
+  //  cout << "passes disk full" << endl;
   //fill new directory block_num to hold 0 to show blocks are unused
   if(!error){
-    dirblock_t* new_block = new dirblock_t;
-    new_block->magic = DIR_MAGIC_NUM;
-    new_block->num_entries = 0;
+    dirblock_t new_block;// = new dirblock_t;
+    new_block.magic = DIR_MAGIC_NUM;
+    new_block.num_entries = 0;
     for (int i = 0; i < MAX_DIR_ENTRIES; i++){
-      new_block->dir_entries[i].block_num = 0;
+      new_block.dir_entries[i].block_num = 0;
+      new_block.dir_entries[i].name[0] = '\0';
     }
     bfs.write_block(block_num, (void*)&new_block);
-    delete new_block;
-    strcpy(buffer, "200 ok\r\n Length: 0\r\n");
-    strcpy(curr_block_ptr->dir_entries[curr_block_ptr->num_entries].name,
-           name);
-    curr_block_ptr->dir_entries[curr_block_ptr->num_entries].block_num =
+    //    delete new_block;
+    strcpy(buffer, "200 OK\r\nLength: 0\r\n");
+ 
+    //    strcat(file_name, "/");
+    strcat(buffer, file_name);
+    strcpy(curr_block_ptr.dir_entries[curr_block_ptr.num_entries].name,
+           file_name);
+    curr_block_ptr.dir_entries[curr_block_ptr.num_entries].block_num =
       block_num;
-    curr_block_ptr->num_entries++;
+    curr_block_ptr.num_entries++;
     
     // write block and delete
     bfs.write_block(curr_dir, (void*)&curr_block_ptr);
-    delete curr_block_ptr;
+    //delete curr_block_ptr;
   }
-  send(fs_sock, buffer, strlen(buffer), 0);
+  //delete curr_block_ptr;
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 // switch to a directory
@@ -144,33 +158,41 @@ void FileSys::home(){
 // remove a directory
 void FileSys::rmdir(const char *name)
 {
-  dirblock_t* curr_block_ptr = new dirblock_t;
+  dirblock_t curr_block_ptr;// = new dirblock_t;
   char file_name[MAX_FNAME_SIZE + 1];
   char curr_file_name[MAX_FNAME_SIZE + 1];
   strcpy(file_name, name);
   bfs.read_block(curr_dir, (void*)&curr_block_ptr);
+  cout << "read curr_block: " << curr_dir << endl;
   bool error = false;  
 
   char buffer[1024];
   
-  short found_block;
-  unsigned int found_index;
+  short found_block = 0;
+  unsigned int found_index = 0;
   bool found = false;
-  dirblock_t* found_dir_ptr = new dirblock_t;
+  dirblock_t found_dir_ptr;// = new dirblock_t;
   //finds the directory to remove wthin the current directory, sets found
   //bool to true if it exists in the directory
   for (unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
-    strcpy(curr_file_name, curr_block_ptr->dir_entries[i].name);
+    cout << "HAVE: " << curr_block_ptr.dir_entries[i].name << " "
+         << curr_block_ptr.dir_entries[i].block_num << endl;
+    strcpy(curr_file_name, curr_block_ptr.dir_entries[i].name);
+    //strcat(curr_file_name, "/");
     if (strcmp(curr_file_name, file_name) == 0){
+      error = false;
       found = true;
       found_index = i;
-      found_block = curr_block_ptr->dir_entries[i].block_num;
-      bfs.read_block(curr_block_ptr->dir_entries[i].block_num,
-                     (void*)&found_dir_ptr);
+      found_block = curr_block_ptr.dir_entries[found_index].block_num;
+      cout << "FOUND: " << found_block << endl;
+      bfs.read_block(found_block, (void*)&found_dir_ptr);
+      cout << "after found " << endl;
+    }else{
+      error = true;
     }
   }
   //ensures the found directory is a directory and not a file
-  if(!is_directory(found_dir_ptr->magic)){
+  if(!is_directory(found_block)){
     if(!error){
       error = true;
       strcpy(buffer, "500: File is not a directory\r\n");
@@ -184,7 +206,7 @@ void FileSys::rmdir(const char *name)
   }
   //if the found directory is a directory but still contains files it cannot
   //be removed and this error is wrote into the buffer
-  else if(found_dir_ptr->num_entries != 0 && !error){
+  else if(found_dir_ptr.num_entries != 0 && !error){
     error = true;
     strcpy(buffer, "507: Directory is not empty\r\n");
   }
@@ -192,17 +214,21 @@ void FileSys::rmdir(const char *name)
     //if error is still set to false then remove the directory and set all
     //values back to null/0 as well as reclaiming its block num
     if(!error){
-      bfs.reclaim_block(curr_block_ptr->dir_entries[found_index].block_num);
-      curr_block_ptr->dir_entries[found_index].name[0] = '\0';
-      curr_block_ptr->dir_entries[found_index].block_num = 0;
-      curr_block_ptr->num_entries--;
+      cout << "THE FOUND BLOCK: "
+           << curr_block_ptr.dir_entries[found_index].block_num << endl;
+      bfs.reclaim_block(curr_block_ptr.dir_entries[found_index].block_num);
+      curr_block_ptr.dir_entries[found_index].name[0] = '\0';
+      curr_block_ptr.dir_entries[found_index].block_num = 0;
+      cout << "BLOCK VALUE CANGED: " <<
+        curr_block_ptr.dir_entries[found_index].block_num << endl;
+      curr_block_ptr.num_entries--;
       bfs.write_block(curr_dir, (void*)&curr_block_ptr);
       strcpy(buffer, "200 OK\r\n Length: 0\r\n");
     }
   }
   
-  delete found_dir_ptr;
-  delete curr_block_ptr;
+  //delete found_dir_ptr;
+  //delete curr_block_ptr;
   send(fs_sock, buffer, strlen(buffer), 0);
 }
 
@@ -211,30 +237,29 @@ void FileSys::ls()
 {
   char bufferStart[] = "200 OK\r\n";
   string buffer;
-  char msg[200];
+  char msg[2048];
   char msgLength[80];
   //read the data held at the current directory from the disk
-  dirblock_t* curr_block_ptr = new dirblock_t;
-  char curr_file_name[MAX_FNAME_SIZE + 1];
-  bfs.read_block(curr_dir, curr_block_ptr);
-
+  dirblock_t curr_block_ptr;// = new dirblock_t;
+  char curr_file_name[MAX_FNAME_SIZE + 1] = {};
+  bfs.read_block(curr_dir, (void*)&curr_block_ptr);
   int k = 0;
   for (unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
-    k = 0;
-    if(curr_block_ptr->dir_entries[i].block_num != 0){
-      while((curr_block_ptr->dir_entries[i].name[k] != '\0') &&
-            (k <= MAX_FNAME_SIZE)){
-        buffer.push_back(curr_block_ptr->dir_entries[i].name[k]);
+    while(curr_block_ptr.dir_entries[i].block_num > 0){
+      if(curr_block_ptr.dir_entries[i].name[k] != '\0'){
+        buffer.push_back(curr_block_ptr.dir_entries[i].name[k]);
       }
-      buffer.append(" ");
+      k++;
     }
+    buffer.append("/ ");
   }
   strcpy(msg, bufferStart);
-  sprintf(msgLength, "Length: %d", sizeof(buffer));
+  //sprintf(msgLength, "Length: %d", sizeof(buffer));
+  //strcat(msg, msgLength);
   strcat(msg, "\r\n");
   strcat(msg, buffer.c_str());
-  delete curr_block_ptr;
-  
+  //delete curr_block_ptr;
+  //cout << "ls message: " << msg << " ls buffer: " <<buffer << endl;  
   send(fs_sock, msg, sizeof(msg), 0);  
 }
 
@@ -594,7 +619,7 @@ void FileSys::stat(const char *name)
 bool FileSys::execute_command(string command_str)
 {
   // parse the command line
-  struct Command command = parse_command(command_str);
+  struct FileSys::Command command = parse_command(command_str);
 
   cout << "NAME: " << command.name << endl;
   cout << "FILENAME: " << command.file_name << endl;
@@ -663,11 +688,12 @@ bool FileSys::execute_command(string command_str)
 FileSys::Command FileSys::parse_command(string command_str)
 {
   // empty command struct returned for errors
-  struct Command empty = {"", "", ""};
+  struct FileSys::Command empty = {"", "", ""};
 
+  cout << "parseing message " << command_str << endl;
   // Remove \r\n
-  command_str = command_str.substr(0, command_str.size() - 6);
-
+  //  command_str = command_str.substr(0, command_str.size() - 6);
+  //cout << "after " << command_str << endl;
   // grab each of the tokens (if they exist)
   struct Command command;
   istringstream ss(command_str);
@@ -685,15 +711,14 @@ FileSys::Command FileSys::parse_command(string command_str)
       }
     }
   }
-
+  cout << num_tokens << endl;
   // Check for empty command line
   if (num_tokens == 0) {
     return empty;
   }
 
   // Check for invalid command lines
-  if (command.name == "ls" ||
-      command.name == "home" ||
+  if (command.name == "ls" || command.name == "home" ||
       command.name == "quit")
   {
     if (num_tokens != 1) {
@@ -737,15 +762,13 @@ FileSys::Command FileSys::parse_command(string command_str)
 const bool FileSys::is_directory(short block_num)
 {
   //create dirblock_t to read block into
-  dirblock_t* target_dir = new dirblock_t;
+  dirblock_t target_dir; // = new dirblock_t;
   bfs.read_block(block_num, (void *) &target_dir);
-
-  if(target_dir->magic == DIR_MAGIC_NUM){
-    delete target_dir;
+  cout << "READ IS DIRECTORY" << endl;
+  if(target_dir.magic == DIR_MAGIC_NUM){
     return true;
   }
   else{
-    delete target_dir;
     return false;
   }
 }

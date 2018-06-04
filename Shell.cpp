@@ -67,12 +67,15 @@ void Shell::unmountNFS() {
 // Remote procedure call on mkdir
 void Shell::mkdir_rpc(string dname) {
   string command = "mkdir " + dname + "\r\n";
-  char* message[2048];
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command) << endl;
+  
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);            
 
-  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);            
-
-  cout << message;
+  cout << "rpc " << recieved << endl;
 }
 
 // Remote procedure call on cd
@@ -98,12 +101,22 @@ void Shell::home_rpc() {
 // Remote procedure call on rmdir
 void Shell::rmdir_rpc(string dname) {
   string command = "rmdir " + dname + "\r\n";
-  char* message[2048];
+  //char message[2048];
+  //string command = "mkdir " + dname + "\r\n";
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
 
-  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
 
-  cout << message;
+  cout << "rpc " << recieved << endl;
+  
+  //send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  //recv(cs_sock, message, sizeof(message), 0);
+
+  //cout << message;
 
   //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
   //recv(fd, buf, MAX_FNAME_SIZE, 0);
@@ -112,13 +125,17 @@ void Shell::rmdir_rpc(string dname) {
 
 // Remote procedure call on ls
 void Shell::ls_rpc() {
-  char command[] = "ls\r\n";
-  char* message[2048];
+  string command = "ls\r\n";
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
 
-  send(cs_sock, command, sizeof(command), 0);
-  recv(cs_sock, message, sizeof(message),0);
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
 
-  cout << message;
+  cout << "rpc " << recieved << endl;
+  
 }
 
 // Remote procedure call on create
