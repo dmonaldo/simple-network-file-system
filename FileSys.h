@@ -54,6 +54,8 @@ class FileSys {
 
     int fs_sock;  // file server socket
 
+    const bool is_directory(short block_num);
+
     // Additional private variables and Helper functions - if desired
 };
 
