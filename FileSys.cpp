@@ -106,21 +106,21 @@ void FileSys::cd(const char *name)
   char buffer[256];
   
   //retrieve current directory data block
-  dirblock_t* curr_dir_block_ptr = new dirblock_t;
-  bfs.read_block(curr_dir, (void *) &curr_dir_block_ptr);
+  dirblock_t* dir_ptr = new dirblock_t;
+  bfs.read_block(curr_dir, (void *) &dir_ptr);
 
   //check if any sub directories exist in current directory
-  if(curr_dir_block_ptr->num_entries > 0){
+  if(dir_ptr->num_entries > 0){
     //check each sub directory and check directory names for match
-    for(int i= 1; i <= curr_dir_block_ptr->num_entries; i++){
-      if(strcmp(curr_dir_block_ptr->dir_entries[i].name, name) == 0){
+    for(int i= 1; i <= dir_ptr->num_entries; i++){
+      if(strcmp(dir_ptr->dir_entries[i].name, name) == 0){
         found = true;
-        if(!is_directory(curr_dir_block_ptr->dir_entries[i].block_num)){
+        if(!is_directory(dir_ptr->dir_entries[i].block_num)){
           error = true;
-          strcpy(buffer, "500 File is not a directory");
+          strcat(buffer, "500 File is not a directory");
         }
         else{
-          curr_dir = curr_dir_block_ptr->dir_entries[i].block_num;
+          curr_dir = dir_ptr->dir_entries[i].block_num;
         }
       }
     }
@@ -129,8 +129,8 @@ void FileSys::cd(const char *name)
   if(found && !error){
     strcat(buffer, "503 File does not exist");
   }
-  delete curr_dir_block_ptr;
-  send(fs_sock, buffer, strlen(buffer), 0);
+  delete dir_ptr;
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 // switch to home directory
 void FileSys::home(){
@@ -377,7 +377,7 @@ void FileSys::cat(const char *name)
   
   delete cat_file_contents;
   delete curr_dir_block_ptr;
-  send(fs_sock, buffer, strlen(buffer), 0);
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 // display the first N bytes of the file
 void FileSys::head(const char *name, unsigned int n)
