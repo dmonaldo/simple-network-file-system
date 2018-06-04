@@ -68,9 +68,9 @@ void Shell::unmountNFS() {
 void Shell::mkdir_rpc(string dname) {
   string command = "mkdir " + dname + "\r\n";
   char* message[2048];
-
+cout << "mkdir_rpc: " << command << endl;
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);            
+  recv(cs_sock, message, sizeof(message), 0);
 
   cout << message;
 }
@@ -80,7 +80,7 @@ void Shell::cd_rpc(string dname) {
   string command = "cd " + dname + "\r\n";
   char* message[256];
   char* buffer[256];
-  
+
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
   //Implement cout stuff
