@@ -28,18 +28,12 @@ void FileSys::unmount() {
 // make a directory
 void FileSys::mkdir(const char *name)
 {
-<<<<<<< HEAD
-  if (strlen(name) > MAX_FNAME_SIZE + 1){
-    cout << "File name is too long.\n";
-    return;
-=======
   char buffer[1024];
   bool error = false;
   read(fs_sock, buffer, 1024);
   if(strlen(name) > MAX_FNAME_SIZE +1){
     strcpy(buffer, "504: File name is too long\r\n");
     error = true;
->>>>>>> alex-branch
   }
 
   // read current directory for duplicate name
@@ -80,11 +74,7 @@ void FileSys::mkdir(const char *name)
       }
     }
   }
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> alex-branch
   //fill new directory block_num to hold 0 to show blocks are unused
   if(!error){
     dirblock_t* new_block = new dirblock_t;
@@ -96,11 +86,12 @@ void FileSys::mkdir(const char *name)
     bfs.write_block(block_num, (void*)&new_block);
     delete new_block;
     strcpy(buffer, "200 ok\r\n Length: 0\r\n");
-    strcpy(curr_block_ptr->dir_entries[curr_block_ptr->num_entries].name, name);
+    strcpy(curr_block_ptr->dir_entries[curr_block_ptr->num_entries].name,
+           name);
     curr_block_ptr->dir_entries[curr_block_ptr->num_entries].block_num =
       block_num;
     curr_block_ptr->num_entries++;
-
+    
     // write block and delete
     bfs.write_block(curr_dir, (void*)&curr_block_ptr);
     delete curr_block_ptr;
@@ -599,7 +590,6 @@ void FileSys::stat(const char *name)
   send(fs_sock, message, sizeof(message), 0);
 }
 
-<<<<<<< HEAD
 // Executes the command. Returns true for quit and false otherwise.
 bool FileSys::execute_command(string command_str)
 {
@@ -741,7 +731,7 @@ FileSys::Command FileSys::parse_command(string command_str)
   }
 
   return command;
-=======
+}
 // HELPER FUNCTIONS 
 
 const bool FileSys::is_directory(short block_num)
@@ -758,5 +748,4 @@ const bool FileSys::is_directory(short block_num)
     delete target_dir;
     return false;
   }
->>>>>>> alex-branch
 }

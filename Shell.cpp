@@ -60,10 +60,7 @@ void Shell::mountNFS(string fs_loc) {
 void Shell::unmountNFS() {
   if (is_mounted) {
     close(cs_sock);
-<<<<<<< HEAD
     is_mounted = false;
-=======
->>>>>>> alex-branch
   }
 }
 
