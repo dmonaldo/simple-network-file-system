@@ -80,14 +80,14 @@ int main(int argc, char* argv[]) {
     fs.execute_command(buffer);
     //send(sockfd, buffer, sizeof(buffer), 0);
 
-    if(n < 0){
-      perror("ERROR recieveing to socket");
+    if (n == 0) {
+      perror("ERROR receiving to socket");
+			break;
     }
   }
   close(newsockfd);
 
-
-    // close the listening socket
+  // close the listening socket
   close(sockfd);
 
   // unmount the file system
