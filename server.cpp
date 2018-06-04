@@ -7,6 +7,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "FileSys.h"
+#include <string.h>
 using namespace std;
 
 // report error
@@ -63,6 +64,7 @@ int main(int argc, char* argv[]) {
 		// loop: get the command from the client and invoke the file
 		// system operation which returns the results or error messages back to the client
 		// until the client closes the TCP connection.
+<<<<<<< HEAD
 		int responseLength = 1;
 		string response;
 		while (responseLength != 0) {
@@ -72,6 +74,14 @@ int main(int argc, char* argv[]) {
 			response = buffer;
 			fs.execute_command(response);
 
+=======
+		int response = 1;
+		while (response != 0) {
+			response = read(newsockfd, buffer, BUFFER_LENGTH);
+			cout << "RESPONSE:" << endl;
+			cout << response << endl;
+			cout << buffer << endl;
+>>>>>>> alex-branch
 			bzero(buffer, BUFFER_LENGTH);
 		}
 

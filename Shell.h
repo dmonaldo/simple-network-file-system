@@ -4,6 +4,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include <cstring>
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
