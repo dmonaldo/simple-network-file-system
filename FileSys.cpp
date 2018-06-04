@@ -27,8 +27,6 @@ void FileSys::unmount() {
 // make a directory
 void FileSys::mkdir(const char *name)
 {
-  cout << "Making Directory " << endl;
-
   if (strlen(name) > MAX_FNAME_SIZE + 1){
     cout << "File name is too long.\n";
     return;
