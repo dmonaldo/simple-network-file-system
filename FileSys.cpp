@@ -27,7 +27,8 @@ void FileSys::unmount() {
 // make a directory
 void FileSys::mkdir(const char *name)
 {
-  
+  cout << "Making Directory " << endl;
+
   if (strlen(name) > MAX_FNAME_SIZE + 1){
     cout << "File name is too long.\n";
     return;
@@ -57,7 +58,7 @@ void FileSys::mkdir(const char *name)
     }
   }
 
-  // make new free block 
+  // make new free block
   short block_num = bfs.get_free_block();
   if (block_num == 0){
     block_num = bfs.get_free_block();
@@ -67,7 +68,7 @@ void FileSys::mkdir(const char *name)
       return;
     }
   }
-  
+
   //fill new directory block_num to hold 0 to show blocks are unused
   dirblock_t* new_block = new dirblock_t;
   new_block->magic = DIR_MAGIC_NUM;
@@ -154,5 +155,145 @@ void FileSys::stat(const char *name)
 {
 }
 
-// HELPER FUNCTIONS (optional)
+// Executes the command. Returns true for quit and false otherwise.
+bool FileSys::execute_command(string command_str)
+{
+  // parse the command line
+  struct Command command = parse_command(command_str);
 
+  cout << "NAME: " << command.name << endl;
+  cout << "FILENAME: " << command.file_name << endl;
+  cout << "APPEND DATA: " << command.append_data << endl;
+
+  // copy the contents of the string to char array
+  const char* command_name = command.name.c_str();
+  const char* file_name = command.file_name.c_str();
+  const char* append_data = command.append_data.c_str();
+
+  // look for the matching command
+  if (command.name == "") {
+    return false;
+  }
+  else if (command.name == "mkdir") {
+    mkdir(file_name);
+  }
+  else if (command.name == "cd") {
+    cd(file_name);
+  }
+  else if (command.name == "home") {
+    home();
+  }
+  else if (command.name == "rmdir") {
+    rmdir(file_name);
+  }
+  else if (command.name == "ls") {
+    ls();
+  }
+  else if (command.name == "create") {
+    create(file_name);
+  }
+  else if (command.name == "append") {
+    append(file_name, append_data);
+  }
+  else if (command.name == "cat") {
+    cat(file_name);
+  }
+  else if (command.name == "head") {
+    errno = 0;
+    unsigned long n = strtoul(command.append_data.c_str(), NULL, 0);
+    if (0 == errno) {
+      head(file_name, n);
+    } else {
+      cerr << "Invalid command line: " << command.append_data;
+      cerr << " is not a valid number of bytes" << endl;
+      return false;
+    }
+  }
+  else if (command.name == "rm") {
+    rm(file_name);
+  }
+  else if (command.name == "stat") {
+    stat(file_name);
+  }
+  else if (command.name == "quit") {
+    return true;
+  }
+
+  return false;
+}
+
+
+// Parses a command line into a command struct. Returned name is blank
+// for invalid command lines.
+FileSys::Command FileSys::parse_command(string command_str)
+{
+  // empty command struct returned for errors
+  struct Command empty = {"", "", ""};
+
+  // Remove \r\n
+  command_str = command_str.substr(0, command_str.size() - 6);
+
+  // grab each of the tokens (if they exist)
+  struct Command command;
+  istringstream ss(command_str);
+  int num_tokens = 0;
+  if (ss >> command.name) {
+    num_tokens++;
+    if (ss >> command.file_name) {
+      num_tokens++;
+      if (ss >> command.append_data) {
+        num_tokens++;
+        string junk;
+        if (ss >> junk) {
+          num_tokens++;
+        }
+      }
+    }
+  }
+
+  // Check for empty command line
+  if (num_tokens == 0) {
+    return empty;
+  }
+
+  // Check for invalid command lines
+  if (command.name == "ls" ||
+      command.name == "home" ||
+      command.name == "quit")
+  {
+    if (num_tokens != 1) {
+      cerr << "Invalid command line: " << command.name;
+      cerr << " has improper number of arguments" << endl;
+      return empty;
+    }
+  }
+  else if (command.name == "mkdir" ||
+      command.name == "cd"    ||
+      command.name == "rmdir" ||
+      command.name == "create"||
+      command.name == "cat"   ||
+      command.name == "rm"    ||
+      command.name == "stat")
+  {
+    if (num_tokens != 2) {
+      cerr << "Invalid command line: " << command.name;
+      cerr << " has improper number of arguments" << endl;
+      return empty;
+    }
+  }
+  else if (command.name == "append" || command.name == "head")
+  {
+    if (num_tokens != 3) {
+      cerr << "Invalid command line: " << command.name;
+      cerr << " has improper number of arguments" << endl;
+      return empty;
+    }
+  }
+  else {
+    cerr << "Invalid command line: " << command.name;
+    cerr << " is not a command" << endl;
+    return empty;
+  }
+
+  return command;
+}

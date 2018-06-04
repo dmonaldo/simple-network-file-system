@@ -63,12 +63,15 @@ int main(int argc, char* argv[]) {
 		// loop: get the command from the client and invoke the file
 		// system operation which returns the results or error messages back to the client
 		// until the client closes the TCP connection.
-		int response = 1;
-		while (response != 0) {
-			response = read(newsockfd, buffer, BUFFER_LENGTH);
-			cout << "RESPONSE:" << endl;
-			cout << response << endl;
-			cout << buffer << endl;
+		int responseLength = 1;
+		string response;
+		while (responseLength != 0) {
+			responseLength = read(newsockfd, buffer, BUFFER_LENGTH);
+			cout << "RESPONSE LENGTH:" << responseLength << endl;
+
+			response = buffer;
+			fs.execute_command(response);
+
 			bzero(buffer, BUFFER_LENGTH);
 		}
 
