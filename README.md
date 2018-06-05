@@ -34,12 +34,12 @@ The file system is built on top of a virtual disk that is simulated using a file
 - Matt Harrison (@WarpFactors) - [Contributions]
 
 ###### Functionality Rating
-Rating: A, B, C, D, or F?
-Explanation:
+- Rating: A, B, C, D, or F?
+- Explanation:
 
 ###### Test Cases:
-Test case #1: mkdir abc
-Results:
+- Test case #1: mkdir abc
+- Results:
 
 
-Test case #2:
+- Test case #2:
