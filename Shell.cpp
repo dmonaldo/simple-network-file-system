@@ -116,17 +116,8 @@ void Shell::rmdir_rpc(string dname) {
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, recieved, sizeof(recieved), 0);
 
-  cout << "rpc " << recieved << endl;
-  
-  //send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  //recv(cs_sock, message, sizeof(message), 0);
-
-  //cout << message;
-
-  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
-  //recv(fd, buf, MAX_FNAME_SIZE, 0);
-  //read() or cout the buf?;
-  //}
+  cout << "rpc " << recieved << endl;  
+}
 
 // Remote procedure call on ls
 void Shell::ls_rpc() {
