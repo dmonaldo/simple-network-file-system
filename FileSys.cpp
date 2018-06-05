@@ -248,8 +248,7 @@ void FileSys::create(const char *name)
   char file_name[MAX_FNAME_SIZE + 1];
   char curr_file_name[MAX_FNAME_SIZE + 1];
   strcpy(file_name, name);
-  //strcat(file_name, "\n");
-
+  
   bfs.read_block(curr_dir, (void*)&curr_block_ptr);
   if(!error){
     for(unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
@@ -585,47 +584,6 @@ void FileSys::stat(const char *name)
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
   
-  /*
-  bool found = false;
-  int found_index;
-  dirblock_t found_dir_ptr;
-  char file_name[MAX_FNAME_SIZE+1];
-  char curr_file_name[MAX_FNAME_SIZE+1];
-  bool dir_check;
-  char bufferStart[] = "200 OK\r\n";
-  char msgLength[80];
-  char message[2048];
-  char buffer[1024];
-  dirblock_t curr_block_ptr;
-  short directory_block_num =
-    curr_block_ptr.dir_entries[curr_block_ptr.num_entries].block_num;
-  bfs.read_block(curr_dir, (void*)&curr_block_ptr);
-  strcpy(file_name, name);
-  for(unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
-    strcpy(curr_file_name, curr_block_ptr.dir_entries[i].name);
-    if(strcmp(curr_file_name, file_name) == 0){
-      found = true;
-      found_index = i;
-      bfs.read_block(curr_block_ptr.dir_entries[i].block_num,
-                     (void*)&found_dir_ptr);
-    }
-  }
-  if(found){
-    dir_check = is_directory(directory_block_num);
-    
-    
-  strcpy(message, bufferStart);
-  sprintf(msgLength, "Length: %d \r\n", sizeof(buffer));
-  strcat(message, msgLength);
-  strcat(message, buffer);
-  }
-    
-  else{
-    strcpy(message, "503 File does not exist\r\n");
-  }
-  send(fs_sock, message, sizeof(message), 0);
-}
-  */
 // Executes the command. Returns true for quit and false otherwise.
 bool FileSys::execute_command(string command_str)
 {
