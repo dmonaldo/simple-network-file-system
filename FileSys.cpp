@@ -521,6 +521,92 @@ void FileSys::rm(const char *name)
 // display stats about file or directory
 void FileSys::stat(const char *name)
 {
+  dirblock_t curr_block_ptr;
+  bfs.read_block(curr_dir, (void*)&curr_block_ptr);
+  bool found = false;
+  int found_index;
+
+  char file_name[MAX_FNAME_SIZE+1];
+  char curr_file_name[MAX_FNAME_SIZE+1];
+  strcpy(file_name, name);
+
+  dirblock_t found_dir_ptr;
+  bool dir_check;
+  char bufferStart[] = "200 OK\r\n";
+  char msgLength[80];
+  char message[2048];
+  char buffer[2048];
+  
+  //arrays to hold inode stats and holders for inode values
+  bool check_first_block = false;
+  int counter = 0;
+  short first_block;
+  char directory_block[MAX_DATA_BLOCKS];
+  char inode_block[MAX_DATA_BLOCKS];
+  char bytes_in_file[MAX_FILE_SIZE];
+  char number_of_blocks[MAX_DATA_BLOCKS];
+  char first_block_num[MAX_DATA_BLOCKS];
+
+  for(unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
+    strcpy(curr_file_name, curr_block_ptr.dir_entries[i].name);
+    if(strcmp(curr_file_name, file_name) == 0){
+      found = true;
+      found_index = i;
+      bfs.read_block(curr_block_ptr.dir_entries[i].block_num,
+                     (void*)&found_dir_ptr);
+    }
+  }
+
+  if(found){
+    if(is_directory(curr_block_ptr.dir_entries[found_index].block_num)){
+      strcat(buffer, "\nDirectory name: ");
+      strcat(buffer, file_name);
+      strcat(buffer, "\nDirectory block: ");
+      sprintf(directory_block, "%d",
+              curr_block_ptr.dir_entries[found_index].block_num);
+      strcat(buffer, directory_block);
+    }
+    else{
+      inode_t new_inode;
+      bfs.read_block(curr_block_ptr.dir_entries[found_index].block_num,
+                     (void*)&new_inode);
+      for(int k = 0; k < MAX_DATA_BLOCKS; k++){
+        if(new_inode.blocks[k] != 0){
+          counter = counter + 1;
+          // determine first block
+          if(!check_first_block){
+            first_block = k;
+            check_first_block = true;
+          }
+        }
+      }
+      strcat(buffer, "\nInode block: ");
+      sprintf(inode_block, "%d",
+              curr_block_ptr.dir_entries[found_index].block_num);
+      strcat(buffer, inode_block);
+      strcat(buffer, "\nBytes in file: ");
+      sprintf(bytes_in_file, "%d", new_inode.size);
+      strcat(buffer, bytes_in_file);
+      strcat(buffer, "\nNumber of blocks: ");
+      sprintf(number_of_blocks, "%d", counter);
+      strcat(buffer, number_of_blocks);
+      strcat(buffer, "\nFirst block: ");
+      sprintf(first_block_num, "%d", first_block);
+      strcat(buffer, first_block_num);
+    }
+    strcpy(message, bufferStart);
+    sprintf(msgLength, "Length: %d \r\n", sizeof(buffer));
+    strcat(message, msgLength);
+    //strcat(message, buffer);
+    strcat(buffer, message);
+  }
+  else{
+    strcpy(message, "503 File does not exist\r\n");
+  }
+  send(fs_sock, buffer, sizeof(buffer), 0);
+}
+  
+  /*
   bool found = false;
   int found_index;
   dirblock_t found_dir_ptr;
@@ -547,40 +633,8 @@ void FileSys::stat(const char *name)
   }
   if(found){
     dir_check = is_directory(directory_block_num);
-    /* 
-    if(dir_check){
-      strcat(buffer, "Directory name: ");
-      strcat(buffer, name);
-      strcat(buffer, "Directory block: ");
-      sprintf(directory_block, "%d", directory_block_num);
-      strcat(buffer, directory_block);
-    }
-  else{
-    inode_t new_inode;
-    for(int k = 0; k < MAX_DATA_BLOCKS; k++){
-      if(new_inode.blocks[k] != 0){
-        counter = counter + 1;
-        // determine first block
-        if(!check_first_block){
-          first_block = k;
-          check_first_block = true;
-        }
-      }
-      strcat(buffer, "Inode block: ");
-      sprintf(directory_block, "%d", directory_block_num);
-      strcat(buffer, directory_block);
-      strcat(buffer, "Bytes in file: ");
-      sprintf(bytes_in_file, "%d", new_inode.size);
-      strcat(buffer, bytes_in_file);
-      strcat(buffer, "Number of blocks: ");
-      sprintf(number_of_blocks, "%d", counter);
-      strcat(buffer, number_of_blocks);
-      strcat(buffer, "First block: ");
-      sprintf(first_block_num, "%d", first_block);
-      strcat(buffer, first_block_num);
-    }
-    }
-    */
+    
+    
   strcpy(message, bufferStart);
   sprintf(msgLength, "Length: %d \r\n", sizeof(buffer));
   strcat(message, msgLength);
@@ -592,7 +646,7 @@ void FileSys::stat(const char *name)
   }
   send(fs_sock, message, sizeof(message), 0);
 }
-
+  */
 // Executes the command. Returns true for quit and false otherwise.
 bool FileSys::execute_command(string command_str)
 {

@@ -189,9 +189,9 @@ void Shell::rm_rpc(string fname) {
 void Shell::stat_rpc(string fname)
 {
   string command = "stat " + fname + "\r\n";
-  char* message[200];
+  char* buffer[2048];
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, buffer, sizeof(buffer), 0);
 }
 
 // Executes the shell until the user quits.
