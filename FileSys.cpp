@@ -173,7 +173,7 @@ void FileSys::create(const char *name)
   delete curr_block_ptr;
   }
 */
-  send(fs_sock, buffer, strlen(buffer), 0);
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 
