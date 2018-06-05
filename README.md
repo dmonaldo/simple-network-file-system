@@ -36,6 +36,8 @@ Dante Monaldo (@dmonaldo)
 - Parsed and displayed responses to client
 
 Jackie Wong (@jmhw)
+- In FileSys.cpp, wrote create, home, stat
+- In Shell.cpp, wrote create_rpc, home_rpc, stat_rpc
 
 Matt Harrison (@WarpFactors) -
 - Sole creator of following FileSys.cpp methods: cd, cat, head, is_directory
