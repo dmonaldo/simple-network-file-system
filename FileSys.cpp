@@ -82,7 +82,7 @@ void FileSys::mkdir(const char *name)
       new_block.dir_entries[i].name[0] = '\0';
     }
     bfs.write_block(block_num, (void*)&new_block);
-    strcpy(buffer, "200 OK\r\nLength: 0\r\n \r\n");
+    strcpy(buffer, "200 OK\r\nLength: 0\r\n\r\n");
  
     strcat(buffer, file_name);
     strcpy(curr_block_ptr.dir_entries[curr_block_ptr.num_entries].name,
@@ -99,6 +99,7 @@ void FileSys::mkdir(const char *name)
 // switch to a directory
 void FileSys::cd(const char *name)
 {
+  /*
   bool error = false;
   bool found = false;
   char buffer[256];
@@ -129,6 +130,7 @@ void FileSys::cd(const char *name)
   }
   delete dir_ptr;
   send(fs_sock, buffer, sizeof(buffer), 0);
+  */
 }
 // switch to home directory
 void FileSys::home(){
@@ -200,8 +202,7 @@ void FileSys::rmdir(const char *name)
       bfs.write_block(curr_dir, (void*)&curr_block_ptr);
       strcpy(buffer, "200 OK\r\n Length: 0\r\n\r\n");
     }
-  }
-    
+  }   
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
@@ -307,7 +308,6 @@ void FileSys::create(const char *name)
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
-
 // append data to a data file
 void FileSys::append(const char *name, const char *data)
 {
@@ -315,7 +315,7 @@ void FileSys::append(const char *name, const char *data)
 
 // display the contents of a data file
 void FileSys::cat(const char *name)
-{
+{/*
   bool error = false;
   bool found = false;
 
@@ -375,10 +375,11 @@ void FileSys::cat(const char *name)
   delete cat_file_contents;
   delete curr_dir_block_ptr;
   send(fs_sock, buffer, sizeof(buffer), 0);
+ */
 }
 // display the first N bytes of the file
 void FileSys::head(const char *name, unsigned int n)
-{
+{/*
   bool error = false;
   bool found = false;
   char buffer [MAX_FILE_SIZE + 256];
@@ -447,7 +448,9 @@ void FileSys::head(const char *name, unsigned int n)
   delete cat_file_contents;
   delete curr_dir_block_ptr;
   send(fs_sock, buffer, strlen(buffer), 0);
+ */
 }
+
 
 // delete a data file
 void FileSys::rm(const char *name)
@@ -477,7 +480,6 @@ void FileSys::rm(const char *name)
 
         curr_block.num_entries--;
         bfs.write_block(curr_dir,(void*)& curr_block);
-        //strcpy(buffer, "200 OK");
       }
       else{
         strcpy(buffer, "501: File is a directory\r\n");
@@ -498,6 +500,7 @@ void FileSys::rm(const char *name)
 // display stats about file or directory
 void FileSys::stat(const char *name)
 {
+  /*
   bool found = false;
   int found_index;
   struct dirblock_t *curr_block_ptr = new dirblock_t;
@@ -581,17 +584,15 @@ void FileSys::stat(const char *name)
   }
 
   send(fs_sock, message, sizeof(message), 0);
+  */
 }
+
 
 // Executes the command. Returns true for quit and false otherwise.
 bool FileSys::execute_command(string command_str)
 {
   // parse the command line
   struct FileSys::Command command = parse_command(command_str);
-
-  cout << "NAME: " << command.name << endl;
-  cout << "FILENAME: " << command.file_name << endl;
-  cout << "APPEND DATA: " << command.append_data << endl;
 
   // copy the contents of the string to char array
   const char* command_name = command.name.c_str();
@@ -657,11 +658,7 @@ FileSys::Command FileSys::parse_command(string command_str)
 {
   // empty command struct returned for errors
   struct FileSys::Command empty = {"", "", ""};
-
-  cout << "parseing message " << command_str << endl;
-  // Remove \r\n
-  //  command_str = command_str.substr(0, command_str.size() - 6);
-  //cout << "after " << command_str << endl;
+  
   // grab each of the tokens (if they exist)
   struct Command command;
   istringstream ss(command_str);
@@ -679,7 +676,7 @@ FileSys::Command FileSys::parse_command(string command_str)
       }
     }
   }
-  cout << num_tokens << endl;
+
   // Check for empty command line
   if (num_tokens == 0) {
     return empty;
@@ -730,9 +727,9 @@ FileSys::Command FileSys::parse_command(string command_str)
 const bool FileSys::is_directory(short block_num)
 {
   //create dirblock_t to read block into
-  dirblock_t target_dir; // = new dirblock_t;
+  dirblock_t target_dir; 
   bfs.read_block(block_num, (void *) &target_dir);
-  cout << "READ IS DIRECTORY" << endl;
+
   if(target_dir.magic == DIR_MAGIC_NUM){
     return true;
   }
