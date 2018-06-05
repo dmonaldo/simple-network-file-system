@@ -58,7 +58,6 @@ class FileSys {
   private:
     BasicFileSys bfs;	// basic file system
     short curr_dir;	// current directory
-
     int fs_sock;  // file server socket
 
     // data structure for command

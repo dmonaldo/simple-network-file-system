@@ -86,6 +86,11 @@ void Shell::cd_rpc(string dname) {
   recv(cs_sock, message, sizeof(message), 0);
   //Implement cout stuff
 
+<<<<<<< HEAD
+=======
+  send(cs_sock, dname.c_str(), strlen(dname.c_str()), 0);
+  recv(cs_sock, (void *) &buffer, 256, 0);
+>>>>>>> matt
   cout << buffer;
 }
 
