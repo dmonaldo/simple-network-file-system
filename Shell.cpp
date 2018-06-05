@@ -16,7 +16,7 @@ using namespace std;
 static const string PROMPT_STRING = "NFS> ";	// shell prompt
 
 // Mount the network file system with server name and port number in the
-//format of server:port
+// format of server:port
 void Shell::mountNFS(string fs_loc) {
   struct sockaddr_in server;
 
@@ -49,7 +49,6 @@ void Shell::mountNFS(string fs_loc) {
   }
 
   cout << "Connected\n";
-
   is_mounted = true;
 }
 
@@ -81,13 +80,14 @@ void Shell::cd_rpc(string dname) {
   string command = "cd " + dname + "\r\n";
   char message[2048];
   char received[2048];
-  
   strcpy(message, command.c_str());
 
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
-   cout << "cd: " << received << endl;
 
+  // print
+  print_response("cd", message);
 }
 
 // Remote procedure call on home
@@ -96,9 +96,13 @@ void Shell::home_rpc() {
   char message[200];
   char recieved[2048];
   strcpy(message, command.c_str());
+
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, recieved, sizeof(recieved), 0);
-  cout << "RPC: " << recieved << endl;
+
+  // print
+  print_response("home", message);
 }
 
 // Remote procedure call on rmdir
@@ -158,10 +162,13 @@ void Shell::cat_rpc(string fname) {
   char message[2048];
   char received[2048];
   strcpy(message, command.c_str());
+
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
-  cout << "cat " << received << endl;
 
+  // print
+  print_response("cat", received);
 }
 
 // Remote procedure call on head
@@ -171,9 +178,13 @@ void Shell::head_rpc(string fname, int n) {
   char message[2048];
   char received[2048];
   strcpy(message, command.c_str());
+
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
-  cout << "head " << received << endl;
+
+  // print
+  print_response("head", received);
 }
 
 // Remote procedure call on rm
@@ -395,11 +406,13 @@ void Shell::print_response(string command, string response)
 
   // check if response was successful
   if (stoi(response.substr(0,3)) == 200) {
-    if (command == "ls") {
+    if (command == "ls" ||
+        command == "head" ||
+        command == "stat" ||
+        command == "cat") {
       cout << splitResponse[3] << endl;
     }
   } else {
     cout << response << endl;
   }
 }
-

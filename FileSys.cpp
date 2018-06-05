@@ -359,7 +359,7 @@ void FileSys::rm(const char *name)
 // display stats about file or directory
 void FileSys::stat(const char *name)
 {
-  
+
   bool found = false;
   int found_index;
   struct dirblock_t *curr_block_ptr = new dirblock_t;
@@ -443,7 +443,7 @@ void FileSys::stat(const char *name)
   }
 
   send(fs_sock, message, sizeof(message), 0);
-  
+
 }
 
 
@@ -539,7 +539,7 @@ FileSys::Command FileSys::parse_command(string command_str)
   if (num_tokens == 0) {
     return empty;
   }
-
+cout << "Parsing: " << command.name << endl;
   // Check for invalid command lines
   if (command.name == "ls" || command.name == "home" ||
       command.name == "quit")

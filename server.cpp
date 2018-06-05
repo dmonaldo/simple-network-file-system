@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
   int sockfd, newsockfd, port, clilen;
   char buffer[BUFFER_LENGTH];
   struct sockaddr_in serv_addr, cli_addr;
-  // char s[INET6_ADDRSTRLEN];
   struct sockaddr_storage their_addr;
+
   // connector's address information
   socklen_t sin_size;
   if (argc < 2) {
@@ -59,23 +59,18 @@ int main(int argc, char* argv[]) {
   if (newsockfd < 0)
     error((char*)"ERROR on accept");
 
-  //bzero(buffer, BUFFER_LENGTH);
-
   // mount the file system
   FileSys fs;
   fs.mount(newsockfd);
-  // assume that sock is the new socket created
-  // for a TCP connection between the client and the server.
 
-  // loop: get the command from the client and invoke the file
-  // system operation which returns the results or error messages back
-  //to the client until the client closes the TCP connection.
+  // get the command from the client and invoke the file system operation
+	// which returns the results or error messages back to the client until
+	// the client closes the TCP connection.
   int n;
-
   while (1) {
-    bzero(buffer, BUFFER_LENGTH);
-
+		bzero(buffer, BUFFER_LENGTH);
     n = recv(newsockfd, buffer, sizeof(buffer), 0);
+		cout << "RUNNING" << endl;
     fs.execute_command(buffer);
 
     if (n == 0) {
