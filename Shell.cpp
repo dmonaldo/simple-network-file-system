@@ -9,6 +9,7 @@
 #include <vector>
 #include <arpa/inet.h>
 #include <unistd.h>
+
 using namespace std;
 
 #include "Shell.h"
@@ -203,8 +204,12 @@ void Shell::rm_rpc(string fname) {
 }
 
 // Remote procedure call on stat
-void Shell::stat_rpc(string fname) {
-  // to implement
+void Shell::stat_rpc(string fname)
+{
+  string command = "stat " + fname + "\r\n";
+  char* buffer[2048];
+  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  recv(cs_sock, buffer, sizeof(buffer), 0);
 }
 
 // Executes the shell until the user quits.
