@@ -26,6 +26,9 @@ The file system is built on top of a virtual disk that is simulated using a file
 
 ###### Team Members:
 - Alex Runciman (@agrsu) - [Contributions]
+In sole creator of FileSys.cpp: mkdir, rmdir, ls, rm 
+Partial creator for server.cpp, in Shell.cpp: rpc_mkdir, rpc_rmdir, rpc_rm, rpc_ls
+Design help with FileSys.cpp: create, home, stat
 
 - Dante Monaldo (@dmonaldo) - [Contributions]
 
@@ -41,5 +44,47 @@ as well as working on design of append
 - Test case #1: mkdir abc
 - Results:
 
+- Test case #2: cd abc
+- Results:
 
-- Test case #2:
+- Test case #3: create duck
+- Results: 
+
+- Test case #4: home
+- Results:
+
+- Test case #5: ls
+- Results:
+
+- Tes case #6: cd abc
+- Results:
+
+- Test case #7: cat duck
+- Results:
+
+- Test case #8: rmdir abc
+- Results:
+
+- Test case #9: stat duck
+- Results:
+
+- Test case #10: head duck (nbytes)
+- Results:
+
+- Test case #11: cat duck
+- Results: 
+
+- Test case #12: append (something)
+- Results:
+
+- Test case #13: rm duck
+- Results:
+
+- Test case #14: home
+- Results:
+
+- Test case #15: ls
+- Results:
+
+- Test case #16: rmdir abc
+- Results:
