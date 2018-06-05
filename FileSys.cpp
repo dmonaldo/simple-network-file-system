@@ -135,10 +135,7 @@ void FileSys::cd(const char *name)
 // switch to home directory
 
 void FileSys::home(){
-  //char buffer[1024];
   curr_dir = 1;
-  //strcpy(buffer, "switched to the home directory\r\n");
-  //send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 // remove a directory
