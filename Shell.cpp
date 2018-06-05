@@ -37,9 +37,6 @@ void Shell::mountNFS(string fs_loc) {
   }
   cout << "Socket created\n";
 
-  // convert servername to ip address
-  // cout << getaddrinfo(fs_address[0].c_str(), fs_address[1].c_str(), NULL, NULL) << endl;
-
   // construct server address
   server.sin_addr.s_addr = inet_addr(fs_address[0].c_str());
   server.sin_family = AF_INET;
@@ -68,79 +65,85 @@ void Shell::unmountNFS() {
 void Shell::mkdir_rpc(string dname) {
   string command = "mkdir " + dname + "\r\n";
   char message[2048];
-  char recieved[2048];
+  char received[2048];
   strcpy(message, command.c_str());
-  cout << command << sizeof(command) << endl;
 
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
-  recv(cs_sock, recieved, sizeof(recieved), 0);
+  recv(cs_sock, received, sizeof(received), 0);
 
-  cout << "rpc " << recieved << endl;
+  // print
+  print_response("mkdir", received);
 }
 
 // Remote procedure call on cd
 void Shell::cd_rpc(string dname) {
   string command = "cd " + dname + "\r\n";
-  char* message[256];
-  char* buffer[256];
+  char message[2048];
+  char received[2048];
+  
+  strcpy(message, command.c_str());
 
-  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
-  //Implement cout stuff
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, received, sizeof(received), 0);
+   cout << "cd: " << received << endl;
 
-  send(cs_sock, dname.c_str(), strlen(dname.c_str()), 0);
-  recv(cs_sock, (void *) &buffer, 256, 0);
-  cout << buffer;
 }
 
 // Remote procedure call on home
 void Shell::home_rpc() {
-  // to implement
+  string command = "home\r\n";
+  char message[200];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+  cout << "RPC: " << recieved << endl;
 }
 
 // Remote procedure call on rmdir
 void Shell::rmdir_rpc(string dname) {
   string command = "rmdir " + dname + "\r\n";
-  //char message[2048];
-  //string command = "mkdir " + dname + "\r\n";
   char message[2048];
-  char recieved[2048];
+  char received[2048];
   strcpy(message, command.c_str());
-  cout << command << sizeof(command.c_str()) << endl;
 
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
-  recv(cs_sock, recieved, sizeof(recieved), 0);
+  recv(cs_sock, received, sizeof(received), 0);
 
-  cout << "rpc " << recieved << endl;
-
-  //send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  //recv(cs_sock, message, sizeof(message), 0);
-
-  //cout << message;
-
-  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
-  //recv(fd, buf, MAX_FNAME_SIZE, 0);
-  //read() or cout the buf?;
+  // print
+  print_response("rmdir", received);
 }
 
 // Remote procedure call on ls
 void Shell::ls_rpc() {
   string command = "ls\r\n";
   char message[2048];
-  char recieved[2048];
+  char received[2048];
   strcpy(message, command.c_str());
-  cout << command << sizeof(command.c_str()) << endl;
 
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
-  recv(cs_sock, recieved, sizeof(recieved), 0);
+  recv(cs_sock, received, sizeof(received), 0);
 
-  cout << "rpc " << recieved << endl;
-
+  // print
+  print_response("ls", received);
 }
 
 // Remote procedure call on create
 void Shell::create_rpc(string fname) {
-  // to implement
+  string command = "create " + fname + "\r\n";
+  char message[2048];
+  char received[2048];
+  strcpy(message, command.c_str());
+
+  // send to server
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, received, sizeof(received), 0);
+
+  // print
+  print_response("create", received);
 }
 
 // Remote procedure call on append
@@ -152,37 +155,40 @@ void Shell::append_rpc(string fname, string data) {
 void Shell::cat_rpc(string fname) {
   // to implement
   string command = "cat " + fname + "\r\n";
-  char* message[2048];
-  char* buffer[2048];
+  char message[2048];
+  char received[2048];
+  strcpy(message, command.c_str());
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, received, sizeof(received), 0);
+  cout << "cat " << received << endl;
 
-  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
-  //Implement cout stuff
-
-  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
-  recv(cs_sock, (void *) &buffer, 2048, 0);
-  cout << buffer;
 }
 
 // Remote procedure call on head
 void Shell::head_rpc(string fname, int n) {
   // to implement
   string command = "head " + fname + to_string(n) + "\r\n";
-  char* message[2048];
-  char* buffer[2048];
-
-  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
-  //Implement cout stuff
-
-  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
-  recv(cs_sock, (void *) &buffer, 2048, 0);
-  cout << buffer;
+  char message[2048];
+  char received[2048];
+  strcpy(message, command.c_str());
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, received, sizeof(received), 0);
+  cout << "head " << received << endl;
 }
 
 // Remote procedure call on rm
 void Shell::rm_rpc(string fname) {
-  // to implement
+  string command = "rm " + fname + "\r\n";
+  char message[2048];
+  char received[2048];
+  strcpy(message, command.c_str());
+
+  // send to server
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, received, sizeof(received), 0);
+
+  // print
+  print_response("rm", received);
 }
 
 // Remote procedure call on stat
@@ -374,3 +380,26 @@ Shell::Command Shell::parse_command(string command_str)
 
   return command;
 }
+
+// prints the response from the server
+void Shell::print_response(string command, string response)
+{
+  stringstream ss(response);
+  string item;
+  vector<string> splitResponse;
+
+  // split response by line breaks into an array of strings
+  while (getline(ss, item, '\n')) {
+     splitResponse.push_back(item);
+  }
+
+  // check if response was successful
+  if (stoi(response.substr(0,3)) == 200) {
+    if (command == "ls") {
+      cout << splitResponse[3] << endl;
+    }
+  } else {
+    cout << response << endl;
+  }
+}
+
