@@ -4,20 +4,19 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include <cstring>
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <cstring>
 
 // Shell
 class Shell {
 
   public:
     //constructor, do not change it!!
-    Shell() : cs_sock(-1), is_mounted(false) {
-    }
+    Shell() : cs_sock(-1), is_mounted(false) {}
 
     // Mount a network file system located in host:port, set is_mounted = true if success
     void mountNFS(string fs_loc);  //fs_loc must be in the format of server:port
@@ -34,7 +33,6 @@ class Shell {
   private:
 
     int cs_sock; //socket to the network file system server
-
 
     bool is_mounted; //true if the network file system is mounted, false otherise
 
@@ -85,6 +83,7 @@ class Shell {
 
     // Remote procedure call on stat
     void stat_rpc(string fname);
+
 };
 
 #endif

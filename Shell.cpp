@@ -1,6 +1,8 @@
 // CPSC 3500: Shell
 // Implements a basic shell (command line interface) for the file system
-
+#include <vector>
+#include <arpa/inet.h>
+#include <unistd.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -13,7 +15,8 @@ using namespace std;
 
 static const string PROMPT_STRING = "NFS> ";	// shell prompt
 
-// Mount the network file system with server name and port number in the format of server:port
+// Mount the network file system with server name and port number in the
+//format of server:port
 void Shell::mountNFS(string fs_loc) {
   struct sockaddr_in server;
 
@@ -57,32 +60,38 @@ void Shell::mountNFS(string fs_loc) {
 void Shell::unmountNFS() {
   if (is_mounted) {
     close(cs_sock);
+    is_mounted = false;
   }
 }
 
 // Remote procedure call on mkdir
 void Shell::mkdir_rpc(string dname) {
   string command = "mkdir " + dname + "\r\n";
-  char* message[200];
-  //  int socket = 9;
-  //char buffer[];
-  send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
-  // to implement
-  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
-  //recv(fd, buf, MAX_FNAME_SIZE,0);
-  //read(); or cout the buf??
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command) << endl;
+
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+
+  cout << "rpc " << recieved << endl;
 }
 
 // Remote procedure call on cd
 void Shell::cd_rpc(string dname) {
   string command = "cd " + dname + "\r\n";
   char* message[256];
+  char* buffer[256];
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
-  cout << message;
-  }
+  //Implement cout stuff
+
+  send(cs_sock, dname.c_str(), strlen(dname.c_str()), 0);
+  recv(cs_sock, (void *) &buffer, 256, 0);
+  cout << buffer;
+}
 
 // Remote procedure call on home
 void Shell::home_rpc() {
@@ -91,12 +100,42 @@ void Shell::home_rpc() {
 
 // Remote procedure call on rmdir
 void Shell::rmdir_rpc(string dname) {
-  // to implement
+  string command = "rmdir " + dname + "\r\n";
+  //char message[2048];
+  //string command = "mkdir " + dname + "\r\n";
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
+
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+
+  cout << "rpc " << recieved << endl;
+
+  //send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
+  //recv(cs_sock, message, sizeof(message), 0);
+
+  //cout << message;
+
+  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
+  //recv(fd, buf, MAX_FNAME_SIZE, 0);
+  //read() or cout the buf?;
 }
 
 // Remote procedure call on ls
 void Shell::ls_rpc() {
-  // to implement
+  string command = "ls\r\n";
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
+
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+
+  cout << "rpc " << recieved << endl;
+
 }
 
 // Remote procedure call on create
@@ -114,10 +153,15 @@ void Shell::cat_rpc(string fname) {
   // to implement
   string command = "cat " + fname + "\r\n";
   char* message[2048];
+  char* buffer[2048];
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
-  cout << message;
+  //Implement cout stuff
+
+  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
+  recv(cs_sock, (void *) &buffer, 2048, 0);
+  cout << buffer;
 }
 
 // Remote procedure call on head
@@ -125,10 +169,15 @@ void Shell::head_rpc(string fname, int n) {
   // to implement
   string command = "head " + fname + to_string(n) + "\r\n";
   char* message[2048];
+  char* buffer[2048];
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
-  cout << message;
+  //Implement cout stuff
+
+  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
+  recv(cs_sock, (void *) &buffer, 2048, 0);
+  cout << buffer;
 }
 
 // Remote procedure call on rm
