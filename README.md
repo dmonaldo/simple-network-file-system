@@ -31,8 +31,8 @@ The file system is built on top of a virtual disk that is simulated using a file
 
 - Jackie Wong (@jmhw) - [Contributions]
 
-- Matt Harrison (@WarpFactors) - [Contributions]
-
+- Matt Harrison (@WarpFactors) - Worked on the functions cat, cat_rpc, head, head_rpc,
+as well as working on design of append
 ###### Functionality Rating
 - Rating: A, B, C, D, or F?
 - Explanation:
