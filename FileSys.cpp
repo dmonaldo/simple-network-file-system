@@ -63,6 +63,38 @@ void FileSys::create(const char *name)
 {
   char buffer[1024];
   bool error = false;
+  dirblock_t curr_block_ptr;
+  char file_name[MAX_FNAME_SIZE + 1];
+  char curr_file_name[MAX_FNAME_SIZE + 1];
+  strcpy(file_name, name);
+  strcat(file_name, "\n");
+  bfs.read_block(curr_dir, (void*)&curr_block_ptr);
+  if(!error){
+    for(unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
+      strcpy(curr_file_name, curr_block_ptr.dir_entries[i].name);
+      if(strcmp(curr_file_name, file_name) == 0){
+        strcpy(buffer, "502: File exists\r\n");
+        error = true;
+      }
+    }
+  }
+  if(!error){
+    if(strlen(name) > MAX_FNAME_SIZE + 1){
+      strcpy(buffer, "504: File name is too long\r\n");
+      error = true;
+    }
+  }
+  // make new free block
+
+  short block_num = bfs.get_free_block();
+  if(block_num == 0){
+    if(!error){
+      strcpy(buffer, "505: Disk is full\r\n");
+      error = true;
+    }
+  }
+  
+  /*
   read(fs_sock, buffer, 1024);
   if(strlen(name) > MAX_FNAME_SIZE + 1){
     strcpy(buffer, "504: File name is too long\r\n");
@@ -70,13 +102,14 @@ void FileSys::create(const char *name)
   }
   
   // read current directory for duplicate name
-  dirblock_t* curr_block_ptr = new dirblock_t;
+  dirblock_t curr_block_ptr;
   char file_name[MAX_FNAME_SIZE + 1];
   char curr_file_name[MAX_FNAME_SIZE + 1];
   strcpy(file_name, name);
   strcat(file_name, "\n");
   bfs.read_block(curr_dir, (void*) &curr_block_ptr);
-  if(!error){
+  //if(!error)
+   
     if(curr_block_ptr->num_entries == MAX_DIR_ENTRIES){
       strcpy(buffer, "506: Directory is full\r\n");
       error = true;
@@ -107,19 +140,27 @@ void FileSys::create(const char *name)
       }
     }
   }
-  
+  */ 
   // fill new inode block_num to hold 0 to show blocks are unused
   if(!error){
-    inode_t* curr_dir_inode = new inode_t;
+    inode_t curr_dir_inode;
     // initalize timestamps?
     // set permissions/modes?
-    curr_dir_inode->magic = INODE_MAGIC_NUM;
-    curr_dir_inode->size = 0;
-    for(int k = 0; k < MAX_DATA_BLOCKS; k++){
-      curr_dir_inode->blocks[k] = 0; // everything unused
+    curr_dir_inode.magic = INODE_MAGIC_NUM;
+    curr_dir_inode.size = 0;
+    for(int k = 0; k < MAX_DIR_ENTRIES; k++){
+      curr_dir_inode.blocks[k] = 0;
+    }
+    bfs.write_block(block_num, (void*) &curr_dir_inode);
+    strcpy(buffer, "200 OK\r\nLength: 0\r\n");
+    strcat(buffer,file_name);
+    strcpy(curr_block_ptr.dir_entries[curr_block_ptr.num_entries].name,
+           file_name);
+    curr_block_ptr.dir_entries[curr_block_ptr.num_entries].block_num =
+      block_num;
+    bfs.write_block(curr_dir, (void*)&curr_block_ptr);
   }
-  // then write to the block
-  bfs.write_block(block_num, (void*) &curr_dir_inode);
+  /*
   delete curr_dir_inode;
   strcpy(buffer, "200 ok\r\n Length: 0\r\n");
   strcpy(curr_block_ptr->dir_entries[curr_block_ptr->num_entries].name, name);
@@ -131,6 +172,7 @@ void FileSys::create(const char *name)
   bfs.write_block(curr_dir, (void*) &curr_block_ptr);
   delete curr_block_ptr;
   }
+*/
   send(fs_sock, buffer, strlen(buffer), 0);
 }
 
