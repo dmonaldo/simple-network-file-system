@@ -88,14 +88,18 @@ void Shell::cd_rpc(string dname) {
   recv(cs_sock, message, sizeof(message), 0);
   //Implement cout stuff
 
-  send(cs_sock, dname.c_str(), strlen(dname.c_str()), 0);
-  recv(cs_sock, (void *) &buffer, 256, 0);
   cout << buffer;
 }
 
 // Remote procedure call on home
 void Shell::home_rpc() {
-  // to implement
+  string command = "home\r\n";
+  char message[200];
+  char recieved[2048];
+  strcpy(message, command.c_str()); 
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+  cout << "RPC: " << recieved << endl;
 }
 
 // Remote procedure call on rmdir

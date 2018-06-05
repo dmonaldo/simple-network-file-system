@@ -82,7 +82,7 @@ void FileSys::mkdir(const char *name)
       new_block.dir_entries[i].name[0] = '\0';
     }
     bfs.write_block(block_num, (void*)&new_block);
-    strcpy(buffer, "200 OK\r\nLength: 0\r\n");
+    strcpy(buffer, "200 OK\r\nLength: 0\r\n \r\n");
  
     strcat(buffer, file_name);
     strcpy(curr_block_ptr.dir_entries[curr_block_ptr.num_entries].name,
@@ -198,7 +198,7 @@ void FileSys::rmdir(const char *name)
       curr_block_ptr.dir_entries[found_index].block_num = 0;
       curr_block_ptr.num_entries--;
       bfs.write_block(curr_dir, (void*)&curr_block_ptr);
-      strcpy(buffer, "200 OK\r\n Length: 0\r\n");
+      strcpy(buffer, "200 OK\r\n Length: 0\r\n\r\n");
     }
   }
     
@@ -231,9 +231,9 @@ void FileSys::ls()
     }
   }
   strcpy(msg, bufferStart);
-  //sprintf(msgLength, "Length: %d", sizeof(buffer));
-  //strcat(msg, msgLength);
-  strcat(msg, "\r\n");
+  sprintf(msgLength, "Length: %d", sizeof(buffer.c_str()));
+  strcat(msg, msgLength);
+  strcat(msg, "\r\n\r\n");
   strcat(msg, buffer.c_str());
   send(fs_sock, msg, sizeof(msg), 0);  
 }
@@ -295,7 +295,7 @@ void FileSys::create(const char *name)
     }
     // then write to the block
     bfs.write_block(block_num, (void*) &curr_dir_inode);
-    strcpy(buffer, "200 ok\r\n Length: 0\r\n");
+    strcpy(buffer, "200 ok\r\nLength: 0\r\n");
     strcpy(curr_block_ptr.dir_entries[curr_block_ptr.num_entries].name, name);
     curr_block_ptr.dir_entries[curr_block_ptr.num_entries].block_num =
       block_num;
@@ -480,16 +480,16 @@ void FileSys::rm(const char *name)
         //strcpy(buffer, "200 OK");
       }
       else{
-        strcpy(buffer, "501: File is a directory");
+        strcpy(buffer, "501: File is a directory\r\n");
         error = true;
       }
     }
   }
   if(!found && !error){
-    strcpy(buffer, "503 File does not exist");
+    strcpy(buffer, "503 File does not exist\r\n");
     error = true;
   }else{
-    strcpy(buffer, "200 OK\r\n Length: 0\r\n");
+    strcpy(buffer, "200 OK\r\nLength: 0\r\n\r\n");
   }
   //send buffer to client
   send(fs_sock, buffer, sizeof(buffer), 0);
