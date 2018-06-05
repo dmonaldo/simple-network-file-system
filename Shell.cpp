@@ -69,7 +69,7 @@ void Shell::mkdir_rpc(string dname) {
   strcpy(message, command.c_str());
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
-  print_response(received);
+  print_response("mkdir", received);
 }
 
 // Remote procedure call on cd
@@ -100,12 +100,10 @@ void Shell::rmdir_rpc(string dname) {
   char message[2048];
   char received[2048];
   strcpy(message, command.c_str());
-  cout << command << sizeof(command.c_str()) << endl;
 
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
-
-  cout << "rpc " << received << endl;
+  print_response("rmdir", received);
 
   //send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   //recv(cs_sock, message, sizeof(message), 0);
@@ -127,7 +125,7 @@ void Shell::ls_rpc() {
 
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
-  print_response(received);
+  print_response("ls", received);
 }
 
 // Remote procedure call on create
@@ -368,10 +366,12 @@ Shell::Command Shell::parse_command(string command_str)
 }
 
 // Prints the response from the server
-void Shell::print_response(string response)
+void Shell::print_response(string command, string response)
 {
   if (stoi(response.substr(0,3)) == 200) {
-    cout << "SUCCESS" << endl;
+    if (command == "ls") {
+      cout << response << endl;
+    }
   } else {
     cout << response << endl;
   }

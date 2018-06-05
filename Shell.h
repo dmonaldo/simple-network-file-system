@@ -85,7 +85,7 @@ class Shell {
     void stat_rpc(string fname);
 
     // Prints the response from the server
-    void print_response(string response);
+    void print_response(string command, string response);
 };
 
 #endif
