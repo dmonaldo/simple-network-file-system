@@ -28,7 +28,7 @@ The file system is built on top of a virtual disk that is simulated using a file
 Alex Runciman (@agrsu)
 - Sole creator of FileSys.cpp: mkdir, rmdir, ls, rm
 - Partial creator for server.cpp, in Shell.cpp: rpc_mkdir, rpc_rmdir, rpc_rm, rpc_ls
-- Design help with FileSys.cpp: create, home, stat
+- Design help with FileSys.cpp: create, home, stat, cd
 
 Dante Monaldo (@dmonaldo)
 - Created server.cpp and established connections between client and server
@@ -44,7 +44,7 @@ Matt Harrison (@WarpFactors) -
 
 ###### Functionality Rating
 - Rating: A, B, C, D, or F?
-- Explanation:
+- Explanation: B, append is not functional and there appear to be minor errors within create where a file can have the saem name as a directory already creted 
 
 ###### Test Cases:
 - Test case #1: mkdir abc
