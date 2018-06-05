@@ -571,6 +571,8 @@ bool FileSys::execute_command(string command_str)
 // for invalid command lines.
 FileSys::Command FileSys::parse_command(string command_str)
 {
+  cout << "Running command: " << command_str << endl;
+
   // empty command struct returned for errors
   struct FileSys::Command empty = {"", "", ""};
 
@@ -596,7 +598,7 @@ FileSys::Command FileSys::parse_command(string command_str)
   if (num_tokens == 0) {
     return empty;
   }
-cout << "Parsing: " << command.name << endl;
+
   // Check for invalid command lines
   if (command.name == "ls" || command.name == "home" ||
       command.name == "quit")
@@ -677,7 +679,7 @@ void FileSys::cat(const char *name)
               strcat(buffer, file_size);
               strcat(buffer, "\r\n");
               strcat(buffer, "\r\n");
-              delete file_size;
+              delete[] file_size;
 
               //append each data block pointed to by inode_t.blocks[] to our buffer
               for(int j = 0; j < sizeof(file_inode.blocks); j++)
@@ -749,7 +751,7 @@ void FileSys::head(const char *name, unsigned int n)
               strcat(buffer, file_size);
               strcat(buffer, "\r\n");
               strcat(buffer, "\r\n");
-              delete file_size;
+              delete[] file_size;
 
               //append each data block pointed to by inode_t.blocks[] to our buffer
               for(int j = 0; j < sizeof(file_inode.blocks); j++)

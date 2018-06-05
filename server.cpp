@@ -21,7 +21,7 @@ void error(char* message) {
 
 int main(int argc, char* argv[]) {
   const int BACKLOG = 5;
-  const int BUFFER_LENGTH = 1024;
+  const int BUFFER_LENGTH = 2048;
   int sockfd, newsockfd, port, clilen;
   char buffer[BUFFER_LENGTH];
   struct sockaddr_in serv_addr, cli_addr;
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
   while (1) {
 		bzero(buffer, BUFFER_LENGTH);
     n = recv(newsockfd, buffer, sizeof(buffer), 0);
-		cout << "RUNNING" << endl;
+
     fs.execute_command(buffer);
 
     if (n == 0) {
