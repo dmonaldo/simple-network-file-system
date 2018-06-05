@@ -119,9 +119,10 @@ void FileSys::cd(const char *name)
         found = true;
         if(!is_directory(dir_ptr.dir_entries[i].block_num)){
           error = true;
-          strcat(buffer, "500 File is not a directory");
+          strcat(buffer, "500 File is not a directory\r\n");
         }
         else{
+          strcat(buffer, "200 OK\r\n");
           curr_dir = dir_ptr.dir_entries[i].block_num;
         }
       }
@@ -129,7 +130,7 @@ void FileSys::cd(const char *name)
   }
   // if this point reached, no matching directory found
   if(found && !error){
-    strcat(buffer, "503 File does not exist");
+    strcat(buffer, "503 File does not exist\r\n");
   }
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
@@ -640,7 +641,7 @@ void FileSys::cat(const char *name)
     }
 
   delete file_contents;
-  send(fs_sock, buffer, strlen(buffer), 0);
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 // display the first N bytes of the file
@@ -716,7 +717,7 @@ void FileSys::head(const char *name, unsigned int n)
     strcpy(buffer, "503: File does not exist\r\n");
   }
   delete file_contents;
-  send(fs_sock, buffer, strlen(buffer), 0);
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 // HELPER FUNCTIONS
