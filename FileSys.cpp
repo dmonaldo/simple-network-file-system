@@ -131,12 +131,16 @@ void FileSys::cd(const char *name)
   if(found && !error){
     strcat(buffer, "503 File does not exist");
   }
+  cout << buffer << endl;
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
-// switch to home directory
 
+// switch to home directory
 void FileSys::home(){
+  char buffer[1024];
   curr_dir = 1;
+
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 // remove a directory
