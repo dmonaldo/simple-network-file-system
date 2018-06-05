@@ -135,10 +135,10 @@ void FileSys::cd(const char *name)
 // switch to home directory
 
 void FileSys::home(){
-  char buffer[1024];
+  //char buffer[1024];
   curr_dir = 1;
-  strcpy(buffer, "switched to the home directory\r\n");
-  send(fs_sock, buffer, sizeof(buffer), 0);
+  //strcpy(buffer, "switched to the home directory\r\n");
+  //send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 // remove a directory
@@ -523,9 +523,9 @@ void FileSys::stat(const char *name)
 {
   bool found = false;
   int found_index;
-  struct dirblock_t *curr_block_ptr = new dirblock_t;
+  dirblock_t curr_block_ptr;
   bfs.read_block(curr_dir, (void*)&curr_block_ptr);
-  struct dirblock_t *found_dir_ptr = new dirblock_t;
+  dirblock_t found_dir_ptr;
   char file_name[MAX_FNAME_SIZE+1];
   char curr_file_name[MAX_FNAME_SIZE+1];
   strcpy(file_name, name);
@@ -541,7 +541,7 @@ void FileSys::stat(const char *name)
   char directory_name[MAX_FNAME_SIZE];
   char directory_block_label[17];
   short directory_block_num =
-    curr_block_ptr->dir_entries[curr_block_ptr->num_entries].block_num;
+    curr_block_ptr.dir_entries[curr_block_ptr.num_entries].block_num;
   char* directory_block = new char[MAX_DATA_BLOCKS];
   char* inode_block = new char[MAX_DATA_BLOCKS];
   char* bytes_in_file = new char[MAX_FILE_SIZE];
@@ -549,11 +549,11 @@ void FileSys::stat(const char *name)
   char* first_block_num = new char[MAX_DATA_BLOCKS];
 
   for(unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
-    strcpy(curr_file_name, curr_block_ptr->dir_entries[i].name);
+    strcpy(curr_file_name, curr_block_ptr.dir_entries[i].name);
     if(strcmp(curr_file_name, file_name) == 0){
       found = true;
       found_index = i;
-      bfs.read_block(curr_block_ptr->dir_entries[i].block_num,
+      bfs.read_block(curr_block_ptr.dir_entries[i].block_num,
                      (void*)&found_dir_ptr);
     }
   }
@@ -568,9 +568,9 @@ void FileSys::stat(const char *name)
       strcat(buffer, directory_block);
     }
   else{
-    inode_t* new_inode = new inode_t;
+    inode_t new_inode;
     for(int k = 0; k < MAX_DATA_BLOCKS; k++){
-      if(new_inode->blocks[k] != 0){
+      if(new_inode.blocks[k] != 0){
         counter = counter + 1;
         // determine first block
         if(!check_first_block){
@@ -582,7 +582,7 @@ void FileSys::stat(const char *name)
       sprintf(directory_block, "%d", directory_block_num);
       strcat(buffer, directory_block);
       strcat(buffer, "Bytes in file: ");
-      sprintf(bytes_in_file, "%d", new_inode->size);
+      sprintf(bytes_in_file, "%d", new_inode.size);
       strcat(buffer, bytes_in_file);
       strcat(buffer, "Number of blocks: ");
       sprintf(number_of_blocks, "%d", counter);
