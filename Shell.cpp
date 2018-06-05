@@ -99,14 +99,15 @@ void Shell::home_rpc() {
 // Remote procedure call on rmdir
 void Shell::rmdir_rpc(string dname) {
   string command = "rmdir " + dname + "\r\n";
-  //char message[2048];
-  //string command = "mkdir " + dname + "\r\n";
   char message[2048];
   char received[2048];
   strcpy(message, command.c_str());
 
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
+
+  // print
   print_response("rmdir", received);
 }
 
@@ -116,10 +117,12 @@ void Shell::ls_rpc() {
   char message[2048];
   char received[2048];
   strcpy(message, command.c_str());
-  cout << command << sizeof(command.c_str()) << endl;
 
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
+
+  // print
   print_response("ls", received);
 }
 
@@ -377,12 +380,22 @@ Shell::Command Shell::parse_command(string command_str)
   return command;
 }
 
-// Prints the response from the server
+// prints the response from the server
 void Shell::print_response(string command, string response)
 {
+  stringstream ss(response);
+  string item;
+  vector<string> splitResponse;
+
+  // split response by line breaks into an array of strings
+  while (getline(ss, item, '\n')) {
+     splitResponse.push_back(item);
+  }
+
+  // check if response was successful
   if (stoi(response.substr(0,3)) == 200) {
     if (command == "ls") {
-      cout << response << endl;
+      cout << splitResponse[3] << endl;
     }
   } else {
     cout << response << endl;

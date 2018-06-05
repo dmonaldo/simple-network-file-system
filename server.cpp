@@ -72,16 +72,13 @@ int main(int argc, char* argv[]) {
   int n;
 
   while (1) {
-    cout << "in server while loop " << endl;
-    bzero(buffer,256);
+    bzero(buffer, BUFFER_LENGTH);
 
     n = recv(newsockfd, buffer, sizeof(buffer), 0);
-
     fs.execute_command(buffer);
-    //send(sockfd, buffer, sizeof(buffer), 0);
 
     if (n == 0) {
-      perror("ERROR receiving to socket");
+      perror("Connection closed");
 			break;
     }
   }
