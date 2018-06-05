@@ -25,19 +25,23 @@ The file system is built on top of a virtual disk that is simulated using a file
 - `rm <filename>` - Remove a file from the directory, reclaim all of its blocks including its inode. Cannot remove directories.
 
 ###### Team Members:
-- Alex Runciman (@agrsu) - [Contributions]
-In sole creator of FileSys.cpp: mkdir, rmdir, ls, rm
-Partial creator for server.cpp, in Shell.cpp: rpc_mkdir, rpc_rmdir, rpc_rm, rpc_ls
-Design help with FileSys.cpp: create, home, stat
+Alex Runciman (@agrsu)
+- Sole creator of FileSys.cpp: mkdir, rmdir, ls, rm
+- Partial creator for server.cpp, in Shell.cpp: rpc_mkdir, rpc_rmdir, rpc_rm, rpc_ls
+- Design help with FileSys.cpp: create, home, stat
 
-- Dante Monaldo (@dmonaldo) - [Contributions]
+Dante Monaldo (@dmonaldo)
+- Created server.cpp and established connections between client and server
+- Mounted NFS to run commands from client
+- Parsed and displayed responses to client
 
-- Jackie Wong (@jmhw) - [Contributions]
+Jackie Wong (@jmhw)
 
-- Matt Harrison (@WarpFactors) -
-Sole creator of following FileSys.cpp methods: cd, cat, head, is_directory
-Sole creator of following Shell.cpp methods, cd_rpc, cat_rpc, head_rpc
-I helped design the following in FileSys.cpp: append 
+Matt Harrison (@WarpFactors) -
+- Sole creator of following FileSys.cpp methods: cd, cat, head, is_directory
+- Sole creator of following Shell.cpp methods, cd_rpc, cat_rpc, head_rpc
+- Helped design the following in FileSys.cpp: append
+
 ###### Functionality Rating
 - Rating: A, B, C, D, or F?
 - Explanation:

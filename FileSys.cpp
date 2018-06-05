@@ -14,10 +14,13 @@ using namespace std;
 // mounts the file system
 void FileSys::mount(int sock) {
   bfs.mount();
-  curr_dir = 1; //by default current directory is home directory,
-  //in disk block #1
-  fs_sock = sock; //use this socket to receive file system operations
-  //from the client and send back response messages
+
+  // by default current directory is home directory, in disk block #1
+  curr_dir = 1;
+
+  // use this socket to receive file system operations from the client and
+  // send back response messages
+  fs_sock = sock;
 }
 
 // unmounts the file system
