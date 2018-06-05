@@ -88,22 +88,22 @@ void Shell::cd_rpc(string dname) {
   recv(cs_sock, received, sizeof(received), 0);
 
   // print
-  print_response("cd", message);
+  print_response("cd", received);
 }
 
 // Remote procedure call on home
 void Shell::home_rpc() {
   string command = "home\r\n";
   char message[200];
-  char recieved[2048];
+  char received[2048];
   strcpy(message, command.c_str());
 
   // send to server
   send(cs_sock, message, sizeof(message), 0);
-  recv(cs_sock, recieved, sizeof(recieved), 0);
+  recv(cs_sock, received, sizeof(received), 0);
 
   // print
-  print_response("home", message);
+  print_response("home", received);
 }
 
 // Remote procedure call on rmdir
