@@ -10,7 +10,7 @@ using namespace std;
 #include "BasicFileSys.h"
 #include "Blocks.h"
 
-// mounts the file system
+/*// mounts the file system
 void FileSys::mount(int sock) {
   bfs.mount();
   curr_dir = 1; //by default current directory is home directory,
@@ -95,7 +95,7 @@ void FileSys::mkdir(const char *name)
   }
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
-
+*/
 // switch to a directory
 void FileSys::cd(const char *name)
 {
@@ -137,6 +137,7 @@ void FileSys::home(){
   strcpy(buffer, "switched to the home directory\r\n");
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
+/*
 
 // remove a directory
 void FileSys::rmdir(const char *name)
@@ -316,7 +317,7 @@ void FileSys::create(const char *name)
 void FileSys::append(const char *name, const char *data)
 {
 }
-
+*/
   // display the contents of a data file
   void FileSys::cat(const char *name)
   {
@@ -453,7 +454,7 @@ void FileSys::append(const char *name, const char *data)
     delete file_contents;
     send(fs_sock, buffer, strlen(buffer), 0);
   }
-  // delete a data file
+/*  // delete a data file
   void FileSys::rm(const char *name)
   {
     char buffer[MAX_FNAME_SIZE+256];
