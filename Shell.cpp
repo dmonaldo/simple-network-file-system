@@ -81,16 +81,17 @@ void Shell::mkdir_rpc(string dname) {
 // Remote procedure call on cd
 void Shell::cd_rpc(string dname) {
   string command = "cd " + dname + "\r\n";
-  char* message[256];
-  char* buffer[256];
+
+  char message[256];
+  char recieved[2048];
+
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
-  //Implement cout stuff
+  recv(cs_sock, recieved, sizeof(message), 0);
 
-  send(cs_sock, dname.c_str(), strlen(dname.c_str()), 0);
-  recv(cs_sock, (void *) &buffer, 256, 0);
-  cout << buffer;
+  cout << "cd " << recieved << endl;
 }
 
 // Remote procedure call on home
@@ -152,32 +153,30 @@ void Shell::append_rpc(string fname, string data) {
 void Shell::cat_rpc(string fname) {
   // to implement
   string command = "cat " + fname + "\r\n";
-  char* message[2048];
-  char* buffer[2048];
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  recv(cs_sock, message, sizeof(message), 0);
-  //Implement cout stuff
+  recv(cs_sock, recieved, sizeof(message), 0);
 
-  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
-  recv(cs_sock, (void *) &buffer, 2048, 0);
-  cout << buffer;
+  cout << "cat " << recieved << endl;
 }
 
 // Remote procedure call on head
 void Shell::head_rpc(string fname, int n) {
   // to implement
   string command = "head " + fname + to_string(n) + "\r\n";
-  char* message[2048];
-  char* buffer[2048];
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
 
   send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
   recv(cs_sock, message, sizeof(message), 0);
-  //Implement cout stuff
 
-  send(cs_sock, fname.c_str(), strlen(fname.c_str()), 0);
-  recv(cs_sock, (void *) &buffer, 2048, 0);
-  cout << buffer;
+  cout << "head " << recieved << endl;
 }
 
 // Remote procedure call on rm
