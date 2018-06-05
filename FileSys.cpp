@@ -514,7 +514,7 @@ bool FileSys::execute_command(string command_str)
 // for invalid command lines.
 FileSys::Command FileSys::parse_command(string command_str)
 {
-  cout << "Running command: " << command_str << endl;
+  //cout << "Running command: " << command_str << endl;
 
   // empty command struct returned for errors
   struct FileSys::Command empty = {"", "", ""};
