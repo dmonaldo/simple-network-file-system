@@ -132,12 +132,16 @@ void FileSys::cd(const char *name)
   if(found && !error){
     strcat(buffer, "503 File does not exist\r\n");
   }
+  cout << buffer << endl;
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
-// switch to home directory
 
+// switch to home directory
 void FileSys::home(){
+  char buffer[1024];
   curr_dir = 1;
+
+  send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
 // remove a directory
@@ -511,7 +515,7 @@ bool FileSys::execute_command(string command_str)
 // for invalid command lines.
 FileSys::Command FileSys::parse_command(string command_str)
 {
-  cout << "Running command: " << command_str << endl;
+  //cout << "Running command: " << command_str << endl;
 
   // empty command struct returned for errors
   struct FileSys::Command empty = {"", "", ""};
