@@ -61,9 +61,6 @@ class FileSys {
 
     int fs_sock;  // file server socket
 
-<<<<<<< HEAD
-    const bool is_directory(short block_num);
-=======
     // data structure for command
     struct Command
     {
@@ -75,7 +72,6 @@ class FileSys {
     // Parses a command into a command struct. Returned name is blank
     // for invalid command lines.
     struct Command parse_command(string command_str);
->>>>>>> alex-branch
 
     // Additional private variables and Helper functions - if desired
     const bool is_directory(short block_num);

@@ -6,17 +6,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-<<<<<<< HEAD
-#include <cstring>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-=======
 #include <vector>
 #include <arpa/inet.h>
 #include <unistd.h>
->>>>>>> alex-branch
+
 using namespace std;
 
 #include "Shell.h"
@@ -133,7 +126,7 @@ void Shell::rmdir_rpc(string dname) {
   //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
   //recv(fd, buf, MAX_FNAME_SIZE, 0);
   //read() or cout the buf?;
-}
+  //}
 
 // Remote procedure call on ls
 void Shell::ls_rpc() {
