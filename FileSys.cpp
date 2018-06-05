@@ -52,7 +52,7 @@ void FileSys::mkdir(const char *name)
       error = true;
     }
   }
-  
+
   // make new free block
   short block_num = bfs.get_free_block();
   if (block_num == 0){
@@ -64,14 +64,14 @@ void FileSys::mkdir(const char *name)
       }
     }
   }
-    
+
   if(!error){
     if (curr_block_ptr.num_entries == MAX_DIR_ENTRIES){
       strcpy(buffer, "506: Directory is full\r\n");
       error = true;
     }
   }
-    
+
   //fill new directory block_num to hold 0 to show blocks are unused
   if(!error){
     dirblock_t new_block;
@@ -83,14 +83,13 @@ void FileSys::mkdir(const char *name)
     }
     bfs.write_block(block_num, (void*)&new_block);
     strcpy(buffer, "200 OK\r\nLength: 0\r\n\r\n");
- 
     strcat(buffer, file_name);
     strcpy(curr_block_ptr.dir_entries[curr_block_ptr.num_entries].name,
            file_name);
     curr_block_ptr.dir_entries[curr_block_ptr.num_entries].block_num =
       block_num;
     curr_block_ptr.num_entries++;
-    
+
     bfs.write_block(curr_dir, (void*)&curr_block_ptr);
   }
   send(fs_sock, buffer, sizeof(buffer), 0);
@@ -99,44 +98,41 @@ void FileSys::mkdir(const char *name)
 // switch to a directory
 void FileSys::cd(const char *name)
 {
-  /*
   bool error = false;
   bool found = false;
   char buffer[256];
-  
+
   //retrieve current directory data block
-  dirblock_t* dir_ptr = new dirblock_t;
+  dirblock_t dir_ptr;
   bfs.read_block(curr_dir, (void *) &dir_ptr);
 
   //check if any sub directories exist in current directory
-  if(dir_ptr->num_entries > 0){
+  if(dir_ptr.num_entries > 0){
     //check each sub directory and check directory names for match
-    for(int i= 1; i <= dir_ptr->num_entries; i++){
-      if(strcmp(dir_ptr->dir_entries[i].name, name) == 0){
+    for(int i= 0; i < MAX_DIR_ENTRIES; i++){
+      if(strcmp(dir_ptr.dir_entries[i].name, name) == 0){
         found = true;
-        if(!is_directory(dir_ptr->dir_entries[i].block_num)){
+        if(is_directory(dir_ptr.dir_entries[i].block_num)){
+          curr_dir = dir_ptr.dir_entries[i].block_num;
+        }else{
           error = true;
-          strcat(buffer, "500 File is not a directory");
-        }
-        else{
-          curr_dir = dir_ptr->dir_entries[i].block_num;
+          strcat(buffer, "500 File is not a directory\r\n");
         }
       }
     }
   }
   // if this point reached, no matching directory found
-  if(found && !error){
-    strcat(buffer, "503 File does not exist");
+  if(!found){
+    strcat(buffer, "503 File does not exist\r\n");
   }
-  delete dir_ptr;
+  
   send(fs_sock, buffer, sizeof(buffer), 0);
-  */
 }
 // switch to home directory
 void FileSys::home(){
   char buffer[1024];
   curr_dir = 1;
-  strcpy(buffer, "switched to the home directory\r\n");
+
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
@@ -148,8 +144,8 @@ void FileSys::rmdir(const char *name)
   char curr_file_name[MAX_FNAME_SIZE + 1];
   strcpy(file_name, name);
   bfs.read_block(curr_dir, (void*)&curr_block_ptr);
-  
-  bool error = false;  
+
+  bool error = false;
   char buffer[1024];
   short found_block = 0;
   unsigned int found_index = 0;
@@ -202,7 +198,8 @@ void FileSys::rmdir(const char *name)
       bfs.write_block(curr_dir, (void*)&curr_block_ptr);
       strcpy(buffer, "200 OK\r\n Length: 0\r\n\r\n");
     }
-  }   
+  }
+
   send(fs_sock, buffer, sizeof(buffer), 0);
 }
 
@@ -236,7 +233,7 @@ void FileSys::ls()
   strcat(msg, msgLength);
   strcat(msg, "\r\n\r\n");
   strcat(msg, buffer.c_str());
-  send(fs_sock, msg, sizeof(msg), 0);  
+  send(fs_sock, msg, sizeof(msg), 0);
 }
 
 // create an empty data file
@@ -244,7 +241,7 @@ void FileSys::create(const char *name)
 {
   char buffer[1024];
   bool error = false;
-  read(fs_sock, buffer, 1024);
+
   if(strlen(name) > MAX_FNAME_SIZE + 1){
     strcpy(buffer, "504: File name is too long\r\n");
     error = true;
@@ -345,13 +342,13 @@ void FileSys::cat(const char *name)
         int file_byte_count = (file_size_str.length() + 1);
         char* file_size = new char[file_byte_count];
         strcpy(file_size, file_size_str.c_str());
-        
+
         strcat(buffer, "200 OK\r\n Length:");
         strcat(buffer, file_size);
         strcat(buffer, "\r\n");
         strcat(buffer, "\r\n");
         delete file_size;
-        
+
         //append each data block pointed to by inode_t.blocks[] to our buffer
         for(int k = 0; k < sizeof(cat_file_inode->blocks); k++){
           bfs.read_block(cat_file_inode->blocks[k],
@@ -371,7 +368,7 @@ void FileSys::cat(const char *name)
   if(!found && !error){
     strcpy(buffer, "503: File does not exist\r\n");
   }
-  
+
   delete cat_file_contents;
   delete curr_dir_block_ptr;
   send(fs_sock, buffer, sizeof(buffer), 0);
@@ -383,7 +380,7 @@ void FileSys::head(const char *name, unsigned int n)
   bool error = false;
   bool found = false;
   char buffer [MAX_FILE_SIZE + 256];
-  
+
   datablock_t* cat_file_contents = new datablock_t;
   dirblock_t* curr_dir_block_ptr = new dirblock_t;
 
@@ -408,16 +405,16 @@ void FileSys::head(const char *name, unsigned int n)
         //read inode data for targeted file
         bfs.read_block(curr_dir_block_ptr->dir_entries[i].block_num,
                        cat_file_inode);
-        
+
         if(n > cat_file_inode->size){
           bytes_to_write == cat_file_inode->size;
         }
-        
+
         string file_head_size_str = to_string(cat_file_inode->size);
         int file_byte_count = (file_head_size_str.length() + 1);
         char* file_size = new char[16];
         strcpy(file_size, file_head_size_str.c_str());
-        
+
         strcat(buffer, "200 OK\r\n Length:");
         strcat(buffer, file_size);
         strcat(buffer, "\r\n");
@@ -560,7 +557,7 @@ void FileSys::stat(const char *name)
             check_first_block = true;
           }
         }
-      
+
         strcat(buffer, "Inode block: ");
         sprintf(directory_block, "%d", directory_block_num);
         strcat(buffer, directory_block);
@@ -722,7 +719,7 @@ FileSys::Command FileSys::parse_command(string command_str)
 
   return command;
 }
-// HELPER FUNCTIONS 
+// HELPER FUNCTIONS
 
 const bool FileSys::is_directory(short block_num)
 {
