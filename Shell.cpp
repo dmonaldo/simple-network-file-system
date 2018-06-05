@@ -67,8 +67,12 @@ void Shell::mkdir_rpc(string dname) {
   char message[2048];
   char received[2048];
   strcpy(message, command.c_str());
+
+  // send to server
   send(cs_sock, message, sizeof(message), 0);
   recv(cs_sock, received, sizeof(received), 0);
+
+  // print
   print_response("mkdir", received);
 }
 
