@@ -161,7 +161,16 @@ void Shell::rm_rpc(string fname) {
 
 // Remote procedure call on stat
 void Shell::stat_rpc(string fname) {
-  // to implement
+  string command = "stat " + fname + "\r\n";
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+
+  cout << "rpc " << recieved << endl;
+  
 }
 
 // Executes the shell until the user quits.
