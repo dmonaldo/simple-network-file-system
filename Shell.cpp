@@ -112,15 +112,6 @@ void Shell::rmdir_rpc(string dname) {
   recv(cs_sock, recieved, sizeof(recieved), 0);
 
   cout << "rpc " << recieved << endl;
-  
-  //send(cs_sock, command.c_str(), strlen(command.c_str()), 0);
-  //recv(cs_sock, message, sizeof(message), 0);
-
-  //cout << message;
-
-  //send(fd, dname.c_str(), strlen(dname.c_str()), 0);
-  //recv(fd, buf, MAX_FNAME_SIZE, 0);
-  //read() or cout the buf?;
 }
 
 // Remote procedure call on ls
@@ -140,7 +131,13 @@ void Shell::ls_rpc() {
 
 // Remote procedure call on create
 void Shell::create_rpc(string fname) {
-  // to implement
+  string command = "create " + fname + "\r\n";
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+  cout << "RPC: " << recieved << endl;
 }
 
 // Remote procedure call on append
@@ -182,7 +179,18 @@ void Shell::head_rpc(string fname, int n) {
 
 // Remote procedure call on rm
 void Shell::rm_rpc(string fname) {
-  // to implement
+  string command = "rm " + fname + "\r\n";
+  //char message[2048];
+  //string command = "mkdir " + dname + "\r\n";
+  char message[2048];
+  char recieved[2048];
+  strcpy(message, command.c_str());
+  cout << command << sizeof(command.c_str()) << endl;
+
+  send(cs_sock, message, sizeof(message), 0);
+  recv(cs_sock, recieved, sizeof(recieved), 0);
+
+  cout << "rpc " << recieved << endl;
 }
 
 // Remote procedure call on stat
