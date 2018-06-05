@@ -523,31 +523,19 @@ void FileSys::stat(const char *name)
 {
   bool found = false;
   int found_index;
-  dirblock_t curr_block_ptr;
-  bfs.read_block(curr_dir, (void*)&curr_block_ptr);
   dirblock_t found_dir_ptr;
   char file_name[MAX_FNAME_SIZE+1];
   char curr_file_name[MAX_FNAME_SIZE+1];
-  strcpy(file_name, name);
   bool dir_check;
   char bufferStart[] = "200 OK\r\n";
   char msgLength[80];
   char message[2048];
-  int counter = 0;
-  int first_block;
-  bool check_first_block = false;
   char buffer[1024];
-  char directory_name_label[16];
-  char directory_name[MAX_FNAME_SIZE];
-  char directory_block_label[17];
+  dirblock_t curr_block_ptr;
   short directory_block_num =
     curr_block_ptr.dir_entries[curr_block_ptr.num_entries].block_num;
-  char* directory_block = new char[MAX_DATA_BLOCKS];
-  char* inode_block = new char[MAX_DATA_BLOCKS];
-  char* bytes_in_file = new char[MAX_FILE_SIZE];
-  char* number_of_blocks = new char[MAX_DATA_BLOCKS];
-  char* first_block_num = new char[MAX_DATA_BLOCKS];
-
+  bfs.read_block(curr_dir, (void*)&curr_block_ptr);
+  strcpy(file_name, name);
   for(unsigned int i = 0; i < MAX_DIR_ENTRIES; i++){
     strcpy(curr_file_name, curr_block_ptr.dir_entries[i].name);
     if(strcmp(curr_file_name, file_name) == 0){
@@ -558,8 +546,8 @@ void FileSys::stat(const char *name)
     }
   }
   if(found){
-    // call is_directory
- 
+    dir_check = is_directory(directory_block_num);
+    /* 
     if(dir_check){
       strcat(buffer, "Directory name: ");
       strcat(buffer, name);
@@ -591,16 +579,18 @@ void FileSys::stat(const char *name)
       sprintf(first_block_num, "%d", first_block);
       strcat(buffer, first_block_num);
     }
-  }
+    }
+    */
   strcpy(message, bufferStart);
   sprintf(msgLength, "Length: %d \r\n", sizeof(buffer));
   strcat(message, msgLength);
   strcat(message, buffer);
   }
+    
   else{
     strcpy(message, "503 File does not exist\r\n");
   }
-  send(fs_sock, buffer, sizeof(buffer), 0);
+  send(fs_sock, message, sizeof(message), 0);
 }
 
 // Executes the command. Returns true for quit and false otherwise.
