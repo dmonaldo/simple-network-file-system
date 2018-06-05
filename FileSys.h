@@ -4,10 +4,14 @@
 #ifndef FILESYS_H
 #define FILESYS_H
 
+#include <sstream>
+
+using namespace std;
+
 #include "BasicFileSys.h"
 
 class FileSys {
-  
+
   public:
     // mounts the file system
     void mount(int sock);
@@ -20,10 +24,10 @@ class FileSys {
 
     // switch to a directory
     void cd(const char *name);
-    
+
     // switch to home directory
     void home();
-    
+
     // remove a directory
     void rmdir(const char *name);
 
@@ -48,15 +52,33 @@ class FileSys {
     // display stats about file or directory
     void stat(const char *name);
 
+    // Executes the command. Returns true for quit and false otherwise.
+    bool execute_command(string command_str);
+
   private:
     BasicFileSys bfs;	// basic file system
     short curr_dir;	// current directory
 
     int fs_sock;  // file server socket
 
+<<<<<<< HEAD
     const bool is_directory(short block_num);
+=======
+    // data structure for command
+    struct Command
+    {
+      string name;		// name of command
+      string file_name;		// name of file
+      string append_data;	// append data (append only)
+    };
+
+    // Parses a command into a command struct. Returned name is blank
+    // for invalid command lines.
+    struct Command parse_command(string command_str);
+>>>>>>> alex-branch
 
     // Additional private variables and Helper functions - if desired
+    const bool is_directory(short block_num);
 };
 
-#endif 
+#endif
